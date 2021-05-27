@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head lang="en">
+        <meta charset="UTF-8" />
+        <title>Profile</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+    </head>
+    <body>
+        <div th:replace="fragments/layout :: header(title='Profile')"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-6">
+                    <span th:text="${nickname}">
+                        nickname
+                    </span>
+                    <div th:if="${profileImage != null}"
+                         style="width: 250px; height: 250px; border-radius: 50%;
+                                overflow: hidden;">
+                        <img th:src="@{/images/{id}/content(id=${profileImage.getId()})}"
+                             style="object-fit: cover; width: 100%; height: 100%"/>
+                    </div>
+                    <br/>
+                    <div th:if="${profileImage != null}">
+                        <form th:action="@{/changeProfileImage}" method="POST">
+                            <div class="form-group">
+                                <label for="profileImages">Change profile image:</label>
+                                <select name="profileImageId" class="form-control">
+                                    <option th:text="${profileImage.name}" th:value="${profileImage.id}"></option>
+                                    <option th:each="image : ${allProfileImages}"
+                                            th:text="${image.name}" th:value="${image.id}"></option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Change</button>
+                        </form>
+                    </div>
+                    <div>
+                        <form th:action="@{/addFile}" method="POST" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="file">Add new profile image:</label>
+                                <input type="file" name="file" id="file" class="form-control"/><br/>
+                                <input type="hidden" name="type" value="profileImage"/>
+                                <input type="hidden" name="description" value=" "/>
+                                <button type="submit" class="btn btn-primary">Add</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

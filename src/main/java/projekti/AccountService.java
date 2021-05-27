@@ -12,7 +12,7 @@ public class AccountService {
     private AccountRepository accountRepo;
 
     @Transactional
-    public void addNewAccount(Account account) {
+    public void save(Account account) {
         accountRepo.save(account);
     }
 

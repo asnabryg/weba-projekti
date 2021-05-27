@@ -1,5 +1,8 @@
 package projekti;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpSession;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,10 +28,41 @@ public class AccountController {
     @Autowired
     private HttpSession session;
 
+    @GetMapping("profile")
+    public String profile(Model model) {
+        if (!checkIfLoggedIn()) {
+            return "redirect:/index";
+        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Account account = accountService.getAccount(username, false);
+        model.addAttribute("nickname", account.getNickname());
+        FileObject profileImage = null;
+        if (account.getProfileImage() != null) {
+            profileImage = account.getProfileImage();
+        }
+//        System.out.println("image " + profileImage.getName());
+        model.addAttribute("profileImage", profileImage);
+        List<FileObject> images = account.getImages();
+        List<FileObject> allProfileImages = account.getAllProfileImages();
+        allProfileImages.remove(profileImage);
+        model.addAttribute("allProfileImages", allProfileImages);
+        List<Long> imageIds = new ArrayList();
+        for (FileObject image : images) {
+            imageIds.add(image.getId());
+        }
+        model.addAttribute("imageIds", imageIds);
+        model.addAttribute("following", account.getFollowing());
+        model.addAttribute("followers", account.getFollowers());
+        model.addAttribute("blockedUsers", account.getBlockedAccounts());
+        return "profile";
+    }
+
     @GetMapping("/login")
     public String login(Model model, @RequestParam Map<String, String> params) {
         if (checkIfLoggedIn()) {
             if (params.containsKey("logout")) {
+                session.setAttribute("logged", false);
                 return "login";
             }
             return "redirect:/index";
@@ -38,6 +71,14 @@ public class AccountController {
             model.addAttribute("error", params.get("error").equals("true"));
         }
         return "login";
+    }
+
+    @GetMapping("/loginSuccess")
+    public String loginSuccess() {
+        if (checkIfLoggedIn()) {
+            session.setAttribute("logged", true);
+        }
+        return "redirect:/index";
     }
 
     @GetMapping("/register")
@@ -77,7 +118,7 @@ public class AccountController {
         account.setUsername(username);
         account.setNickname(nickname);
         account.setPassword(passwordEncoder.encode(password));
-        accountService.addNewAccount(account);
+        accountService.save(account);
         session.setAttribute("success", 1);
         return "redirect:/register";
     }

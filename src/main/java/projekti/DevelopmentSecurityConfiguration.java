@@ -31,7 +31,7 @@ public class DevelopmentSecurityConfiguration extends WebSecurityConfigurerAdapt
         
         //authenticated()
         http.formLogin().loginPage("/login").loginProcessingUrl("/perform_login")
-                .defaultSuccessUrl("/index").failureUrl("/login?error=true");
+                .defaultSuccessUrl("/loginSuccess").failureUrl("/login?error=true");
         http.authorizeRequests()
                 .antMatchers("/register","/register/**").permitAll()
                 .antMatchers("/h2-console","/h2-console/**").permitAll()

@@ -32,6 +32,9 @@ public class Account extends AbstractPersistable<Long>{
     @OneToOne
     private FileObject profileImage;
     
+    @OneToMany
+    private List<FileObject> allProfileImages;
+    
     @OneToMany(mappedBy="owner")
     private List<FileObject> images;
     
