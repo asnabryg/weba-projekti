@@ -26,15 +26,16 @@ public class Account extends AbstractPersistable<Long>{
     @OneToMany(mappedBy="giver")
     private List<Vote> votes;
     
-    @OneToMany(mappedBy="comments")
+    @OneToMany(mappedBy="sender")
     private List<Comment> comments;
     
+    @OneToOne
     private FileObject profileImage;
     
     @OneToMany(mappedBy="owner")
     private List<FileObject> images;
     
-    private List<Account> following;   
-    private List<Account> followers;
-    private List<Account> blockedAccounts;
+//    private List<Account> following;   
+//    private List<Account> followers;
+//    private List<Account> blockedAccounts;
 }

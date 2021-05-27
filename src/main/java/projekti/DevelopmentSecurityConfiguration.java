@@ -29,10 +29,11 @@ public class DevelopmentSecurityConfiguration extends WebSecurityConfigurerAdapt
         // Pyyntöjä ei tarkasteta
         //sec.ignoring().antMatchers("/**");
         
+        //authenticated()
         http.authorizeRequests()
                 .antMatchers("/register","/register/**").permitAll()
                 .antMatchers("/h2-console","/h2-console/**").permitAll()
-                .anyRequest().authenticated().and()
+                .anyRequest().permitAll().and()
                 .formLogin().permitAll().and()
                 .logout().permitAll();
     }

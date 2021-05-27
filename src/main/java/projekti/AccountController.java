@@ -33,6 +33,7 @@ public class AccountController {
         account.setUsername(username);
         account.setPassword(passwordEncoder.encode(password));
         accountService.addNewAccount(account);
+        System.out.println("redirect register account tallennettu");
         return "redirect:/register";
     }
     

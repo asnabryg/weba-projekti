@@ -5,6 +5,7 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,8 @@ public class FileObject extends AbstractPersistable<Long>{
     private String mediaType;
     private Long size;
     private String description;
+    
+    @ManyToOne()
     private Account owner;
     
     @Lob

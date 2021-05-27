@@ -3,7 +3,7 @@ package projekti;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,5 +22,6 @@ public class Comment extends AbstractPersistable<Long> {
     private Account sender;
     
     private String text;
+    @OneToOne
     private FileObject fileObject;
 }
