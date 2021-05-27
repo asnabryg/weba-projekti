@@ -2,22 +2,59 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
     <head lang="en">
         <meta charset="UTF-8" />
-        <title>Accounts</title>
+        <title>Register</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
     </head>
     <body>
 
-        <h2>Accounts</h2>
+        <div th:replace="fragments/layout :: header(title='Register')"></div>
 
         <ol>
             <li th:each="account : ${accounts}">
                 <span th:text="${account.username}">msg</span>
             </li>
         </ol>
-
-        <form method="POST" th:action="@{/register}">
-            <input type="text" name="username"/>
-            <input type="password" name="password"/>
-            <input type="submit" value="Add new account!"/>
-        </form>
+        <p th:text="${success}">teksti</p>
+        <div th:if="${success != 1}" class="container">
+            <div class="row">
+                <div class="col-6">
+                    <form th:action="@{/register}" method="POST">
+                        <div class="form-group">
+                            <label for="username">Username:</label>
+                            <input type="text" class="form-control" placeholder="Enter username" name="username"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="nickname">Nickname:</label>
+                            <input type="text" class="form-control" placeholder="Enter nickname" name="nickname"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" class="form-control" placeholder="Enter password" name="password"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="passwordConfirm">Confirm password:</label>
+                            <input type="password" class="form-control" placeholder="Enter password again" name="passwordConfirm"/>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                        <p th:if="${success != 0 && success != 1}" th:text="${success}"
+                           style="color: red">
+                            Error text
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div th:if="${success == 1}" class="container">
+            <div class="row">
+                <div class="col-6">
+                    <p>
+                        <b>Registration was successful.</b><br/>
+                        Login from
+                        <a href="/login">here</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
