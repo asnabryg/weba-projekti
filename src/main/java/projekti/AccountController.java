@@ -1,7 +1,6 @@
 package projekti;
 
 import java.util.Map;
-import static jdk.vm.ci.hotspot.HotSpotCompilationRequestResult.success;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -22,6 +21,14 @@ public class AccountController {
     
     @Autowired
     private HttpSession session;
+    
+    @GetMapping("/login")
+    public String login(Model model, @RequestParam Map<String, String> params){
+        if (params.containsKey("error")) {
+            model.addAttribute("error", params.get("error").equals("true"));
+        }
+        return "login";
+    }
 
     @GetMapping("/register")
     public String register(Model model) {
