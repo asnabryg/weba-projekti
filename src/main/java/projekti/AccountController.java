@@ -1,7 +1,6 @@
 package projekti;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class AccountController {
@@ -28,14 +28,16 @@ public class AccountController {
     @Autowired
     private HttpSession session;
 
-    @GetMapping("profile")
-    public String profile(Model model) {
-        if (!checkIfLoggedIn()) {
-            return "redirect:/index";
+    @GetMapping("profile/{username}")
+    public String profile(Model model, @PathVariable String username) {
+        model.addAttribute("sameUser", isSameUser(username));
+        model.addAttribute("logged", checkIfLoggedIn());
+        if (!isSameUser(username)) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            model.addAttribute("looker", accountService.getAccount(auth.getName(), false));
         }
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
         Account account = accountService.getAccount(username, false);
+        model.addAttribute("username", username);
         model.addAttribute("nickname", account.getNickname());
         FileObject profileImage = null;
         if (account.getProfileImage() != null) {
@@ -56,6 +58,25 @@ public class AccountController {
         model.addAttribute("followers", account.getFollowers());
         model.addAttribute("blockedUsers", account.getBlockedAccounts());
         return "profile";
+    }
+    
+    @PostMapping("/follow/{username}")
+    public String followUser(@PathVariable String username){
+        if (checkIfLoggedIn()) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println(auth.getName() + " " + username);
+            accountService.setFollow(auth.getName(), username);
+        }
+        return "redirect:/profile/" + username;
+    }
+    
+    @PostMapping("/unfollow/{username}")
+    public String unfollowUser(@PathVariable String username){
+        if (checkIfLoggedIn()) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            accountService.unfollow(auth.getName(), username);
+        }
+        return "redirect:/profile/" + username;
     }
 
     @GetMapping("/login")
@@ -132,6 +153,11 @@ public class AccountController {
     private boolean checkIfLoggedIn() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getPrincipal() instanceof UserDetails;
+    }
+    
+    private boolean isSameUser(String username){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getName().equals(username);
     }
 
 }

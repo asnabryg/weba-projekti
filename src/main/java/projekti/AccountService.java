@@ -31,4 +31,24 @@ public class AccountService {
             return accountRepo.findByNickname(name);
         }
     }
+    
+    @Transactional
+    public void setFollow(String followerUsername, String followingUsername){
+        Account follower = accountRepo.findByUsername(followerUsername);
+        Account following = accountRepo.findByUsername(followingUsername);
+        follower.getFollowing().add(following);
+        following.getFollowers().add(follower);
+        save(follower);
+        save(following);
+    }
+    
+    @Transactional
+    public void unfollow(String followerUsername, String followingUsername){
+        Account follower = accountRepo.findByUsername(followerUsername);
+        Account following = accountRepo.findByUsername(followingUsername);
+        follower.getFollowing().remove(following);
+        following.getFollowers().remove(follower);
+        save(follower);
+        save(following);
+    }
 }
