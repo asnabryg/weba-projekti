@@ -78,6 +78,16 @@ public class AccountController {
         }
         return "redirect:/profile/" + username;
     }
+    
+    @PostMapping("/changeNickname")
+    public String newNickname(@RequestParam String newNickname){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Account account = accountService.getAccount(username, false);
+        account.setNickname(newNickname);
+        accountService.save(account);
+        return "redirect:/profile/" + username;
+    }
 
     @GetMapping("/login")
     public String login(Model model, @RequestParam Map<String, String> params) {
@@ -99,7 +109,7 @@ public class AccountController {
         if (checkIfLoggedIn()) {
             session.setAttribute("logged", true);
         }
-        return "redirect:/index";
+        return "redirect:/home";
     }
 
     @GetMapping("/register")

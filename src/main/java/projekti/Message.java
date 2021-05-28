@@ -1,7 +1,7 @@
 
 package projekti;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -21,7 +21,7 @@ public class Message extends AbstractPersistable<Long>{
     private Account sender;
     
     private String text;
-    private LocalDate date;
+    private LocalDateTime date;
     
     @OneToMany(mappedBy="message")
     private List<Vote> votes;

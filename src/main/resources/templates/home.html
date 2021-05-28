@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head lang="en">
+        <meta charset="UTF-8" />
+        <title>Profile</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+    </head>
+    <body>
+        <div th:replace="fragments/layout :: header(title='Home')"></div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <!--Write message-->
+                    <form th:action="@{/writeMessage}" method="POST" id="Message">
+                        Message:
+                        <textarea name="messageText" rows="3" cols="50" maxlength="500"
+                                  placeholder="Write message..." class="form-control"></textarea>
+                        <button class="btn btn-primary" type="submit">Submit message</button>
+                    </form>
+                    
+                    <!--Messages-->
+                    <div>
+                        <div th:each="message : ${messages}">
+                            <span th:text="${message.sender.nickname}">name</span><br/>
+                            <span th:text="${message.text}">message</span><br/>
+                            <span th:text="${message.date}">dateTime</span><br/>
+                            <br/>
+                        </div>
+                    </div>
+                    <!--<span th:each="i: ${#numbers.sequence(1, 5)}" th:text="${i}">1</span>-->
+                    
+                    <!--Page buttons-->
+                    <div>
+                        <form th:action="@{/goToPage}" method="POST">
+                            <span th:if="${pageCount > 5}">
+                                <input th:if="${current > 1}" class="page_btn" type="submit" name="page" value="previous"/>
+                                <span th:if="${3 >= current}">
+                                    <span th:each="i: ${#numbers.sequence(1, 5)}">
+                                        <input th:if="${i == current}" class="page_btn_activated" type="submit" name="page" th:value="${i}"/>
+                                        <input th:unless="${i == current}" class="page_btn" type="submit" name="page" th:value="${i}"/>
+                                    </span>
+                                </span>
+                                <span th:if="${current > 3}">
+                                    <input class="page_btn" type="submit" name="page" value="1"/> ...
+                                </span>
+                                <span th:if="current >= pageCount-2">
+                                    <span th:each="i: ${#numbers.sequence(pageCount-4, pageCount)}">
+                                        <input th:if="${i == current}" class="page_btn_activated" type="submit" name="page" th:value="${i}"/>
+                                        <input th:unless="${i == current}" class="page_btn" type="submit" name="page" th:value="${i}"/>
+                                    </span>
+                                </span>
+                                <span th:if="${current > 3}">
+                                    <span th:each="i: ${#numbers.sequence(current-2, current+2)}">
+                                        <input th:if="${i == current}" class="page_btn_activated" type="submit" name="page" th:value="${i}"/>
+                                        <input th:unless="${i == current}" class="page_btn" type="submit" name="page" th:value="${i}"/>
+                                    </span>
+                                </span>
+                                <span th:if="${pageCount-3 >= current}">
+                                    ... <input class="page_btn" type="submit" name="page" th:value="${pageCount}"/>
+                                </span>
+                            </span>
+                            <span th:unless="${pageCount > 5}">
+                                <input th:if="${current > 1}" class="page_btn" type="submit" name="page" th:value="previous"/>
+                                <span th:each="i: ${#numbers.sequence(1, pageCount)}">
+                                    <input th:if="${i == current}" class="page_btn_activated" type="submit" name="page" th:value="${i}"/>
+                                    <input th:unless="${i == current}" class="page_btn" type="submit" name="page" th:value="${i}"/>
+                                </span>
+                                <input th:if="${pageCount > current}" class="page_btn" type="submit" name="page" value="next"/>
+                            </span>
+                        </form>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

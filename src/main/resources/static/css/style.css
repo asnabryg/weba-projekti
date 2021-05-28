@@ -1,7 +1,16 @@
 .scrollWindow {
-    height:300px;
-    width:250px;
+    height:250px;
+    width:230px;
     border:1px solid #ccc;
     font:16px/26px Georgia, Garamond, Serif;
     overflow:auto;
+}
+
+.input-sml{
+    height: calc(1em + .375rem + 2px) !important;
+    width: 45%;
+    padding: .125rem .25rem !important;
+    font-size: .75rem !important;
+    line-height: 1.5;
+    border-radius: .2rem;
 }
