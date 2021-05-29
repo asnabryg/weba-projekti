@@ -6,12 +6,45 @@
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
+        <link rel="stylesheet" th:href="@{/css/style.css}"/>
     </head>
     <body>
-        <header th:fragment="header(title)">
-            <div class="container">
-                <h1 th:text="${title}">Otsikko</h1>
+        <div th:fragment="header">
+            <div class="top">
+                <h1 style="color: white;">Sovellus</h1>
+                <!--Etusivu button-->
+                <div class="top_btns_div">
+                    <div class="top_btn_div">
+                        <form action="/home">
+                            <input class="top_btn" type="submit" value="Home"/>
+                        </form>
+                    </div>
+
+                    <!--Login button-->
+                    <div class="top_btn_div" th:unless="${session.logged}">
+                        <form action="/login">
+                            <input class="top_btn" type="submit" value="Login"/>
+                        </form>
+                    </div>
+
+                    <!--Register button-->
+                    <div class="top_btn_div" th:unless="${session.logged}">
+                        <form action="/register">
+                            <input class="top_btn" type="submit" value="Register"/>
+                        </form>
+                    </div>
+                    <div class="top_btn_div" th:if="${session.logged}">
+                        <form action="/profile">
+                            <input class="top_btn" type="submit" value="Profile"/>
+                        </form>
+                    </div>
+                    <div class="top_btn_div" th:if="${session.logged}">
+                        <form action="/logout">
+                            <input class="top_btn" type="submit" value="Logout"/>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </header>
+        </div>
     </body>
 </html>

@@ -33,12 +33,15 @@ public class AccountController {
     
     @GetMapping("/profile")
     public String redirectProfile(){
+        if(!checkIfLoggedIn()){
+            return "redirect:/login";
+        }
         return "redirect:/profile/" + getUsername() + "/1";
     }
     
     @GetMapping("/profile/{username}")
-    public String redirectProfile2(){
-        return "redirect:/profile/" + getUsername() + "/1"; 
+    public String redirectProfile2(@PathVariable String username){
+        return "redirect:/profile/" + username + "/1"; 
     }
 
     @GetMapping("profile/{username}/{pageNumber}")
@@ -137,6 +140,7 @@ public class AccountController {
     @PostMapping("/changeNickname")
     public String newNickname(@RequestParam String newNickname){
         if (!checkIfLoggedIn()) {
+            session.setAttribute("logged", false);
             return "redirect:/login";
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
