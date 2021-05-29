@@ -33,7 +33,7 @@
                     <!--<span th:each="i: ${#numbers.sequence(1, 5)}" th:text="${i}">1</span>-->
                     
                     <!--Page buttons-->
-                    <div>
+                    <div th:if="${pageCount > 1}">
                         <form th:action="@{/goToPage}" method="POST">
                             <span th:if="${pageCount > 5}">
                                 <input th:if="${current > 1}" class="page_btn" type="submit" name="page" value="previous"/>
