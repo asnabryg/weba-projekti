@@ -1,6 +1,6 @@
 .scrollWindow {
     height:250px;
-    width:230px;
+    width:200px;
     border:1px solid #ccc;
     font:16px/26px Georgia, Garamond, Serif;
     overflow:auto;
@@ -13,4 +13,31 @@
     font-size: .75rem !important;
     line-height: 1.5;
     border-radius: .2rem;
+}
+
+.tooltip1 {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip1 .tooltiptext1 {
+    visibility: hidden;
+    width: 200px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip1:hover .tooltiptext1 {
+    visibility: visible;
+}
+.inline1{
+    display: inline-block;
 }

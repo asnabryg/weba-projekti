@@ -24,12 +24,25 @@ public class AccountController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private MessageService messageService;
 
     @Autowired
     private HttpSession session;
+    
+    @GetMapping("/profile")
+    public String redirectProfile(){
+        return "redirect:/profile/" + getUsername() + "/1";
+    }
+    
+    @GetMapping("/profile/{username}")
+    public String redirectProfile2(){
+        return "redirect:/profile/" + getUsername() + "/1"; 
+    }
 
-    @GetMapping("profile/{username}")
-    public String profile(Model model, @PathVariable String username) {
+    @GetMapping("profile/{username}/{pageNumber}")
+    public String profile(Model model, @PathVariable String username, @PathVariable Long pageNumber) {
         model.addAttribute("sameUser", isSameUser(username));
         model.addAttribute("logged", checkIfLoggedIn());
         if (!isSameUser(username)) {
@@ -46,9 +59,6 @@ public class AccountController {
 //        System.out.println("image " + profileImage.getName());
         model.addAttribute("profileImage", profileImage);
         List<FileObject> images = account.getImages();
-        List<FileObject> allProfileImages = account.getAllProfileImages();
-        allProfileImages.remove(profileImage);
-        model.addAttribute("allProfileImages", allProfileImages);
         List<Long> imageIds = new ArrayList();
         for (FileObject image : images) {
             imageIds.add(image.getId());
@@ -57,7 +67,52 @@ public class AccountController {
         model.addAttribute("following", account.getFollowing());
         model.addAttribute("followers", account.getFollowers());
         model.addAttribute("blockedUsers", account.getBlockedAccounts());
+        model.addAttribute("images", account.getImages());
+        
+        List<Long> Ids = new ArrayList();
+        Ids.add(account.getId());
+        Long maxPages = (Long) session.getAttribute("maxPages");
+        List<Message> messages = messageService.findMessagesByAccounts(Ids, pageNumber);
+        model.addAttribute("messages", messages);
+        
+        model.addAttribute("pageCount", maxPages);
+        model.addAttribute("current", pageNumber);
         return "profile";
+    }
+    
+    private void checkSession(List<Long> senderIds) {
+        if (session.getAttribute("pageProfile") == null) {
+            session.setAttribute("pageProfile", 1L);
+        }
+        Long messageCount = messageService.getCountBySenders(senderIds);
+        if (messageCount == null) 
+            messageCount = 0L;
+        session.setAttribute("maxPagesProfile", calculateMaxPages(messageCount, 25));
+        System.out.println("PageProfile: " + session.getAttribute("pageProfile"));
+        System.out.println("MaxPagesProfile: " + session.getAttribute("maxPagesProfile"));
+    }
+    
+    private long calculateMaxPages(long messageCount, long messagesPerPage){
+        return (messageCount + messagesPerPage - 1) / messagesPerPage;
+    }
+    
+    @PostMapping("/goToPageInProfile")
+    public String goToPage(@RequestParam String page, @RequestParam String username){
+        if (!checkIfLoggedIn()) {
+            return "redirect:/login";
+        }
+        System.out.println("username " + username);
+        // 0 = next, -1 = previous
+        Long sessionPage = (Long) session.getAttribute("pageProfile");
+        if (page.equals("next")) {
+            sessionPage++;
+        }else if (page.equals("previous")){
+            sessionPage--;
+        }else{
+            sessionPage = Long.valueOf(page);
+        }
+        session.setAttribute("pageProfile", sessionPage);
+        return "redirect:/profile/" + username + "/" + sessionPage;
     }
     
     @PostMapping("/follow/{username}")
@@ -81,6 +136,9 @@ public class AccountController {
     
     @PostMapping("/changeNickname")
     public String newNickname(@RequestParam String newNickname){
+        if (!checkIfLoggedIn()) {
+            return "redirect:/login";
+        }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Account account = accountService.getAccount(username, false);
@@ -114,9 +172,6 @@ public class AccountController {
 
     @GetMapping("/register")
     public String register(Model model) {
-        if (checkIfLoggedIn()) {
-            return "redirect:/index";
-        }
         model.addAttribute("accounts", accountService.findAll());
         if (session.getAttribute("success") == null) {
             session.setAttribute("success", 0);
@@ -129,9 +184,6 @@ public class AccountController {
     @PostMapping("register")
     public String postRegister(@RequestParam String username, @RequestParam String password,
             @RequestParam String nickname, @RequestParam String passwordConfirm) {
-        if (checkIfLoggedIn()) {
-            return "redirect:/index";
-        }
         if (accountService.getAccount(username, false) != null) {
             session.setAttribute("success", "Username is already used!");
             return "redirect:/register";
@@ -168,6 +220,11 @@ public class AccountController {
     private boolean isSameUser(String username){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName().equals(username);
+    }
+    
+    private String getUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getName();
     }
 
 }

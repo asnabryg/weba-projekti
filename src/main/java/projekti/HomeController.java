@@ -79,6 +79,9 @@ public class HomeController {
     
     @PostMapping("/goToPage")
     public String goToPage(@RequestParam String page){
+        if (!checkIfLoggedIn()) {
+            return "redirect:/index";
+        }
         // 0 = next, -1 = previous
         Long sessionPage = (Long) session.getAttribute("page");
         if (page.equals("next")) {
@@ -94,9 +97,14 @@ public class HomeController {
 
     @PostMapping("/writeMessage")
     public String writeMessage(@RequestParam String messageText) {
+        if (!checkIfLoggedIn()) {
+            return "redirect:/index";
+        }
         Message message = new Message();
         message.setText(messageText);
-        message.setDate(LocalDateTime.now());
+        LocalDateTime date = LocalDateTime.now();
+        message.setDate(date);
+        message.setDateInString(dateToString(date));
         Account account = accountService.getAccount(getUsername(), false);
         message.setSender(account);
         messageService.save(message);
@@ -115,5 +123,23 @@ public class HomeController {
 
     private boolean isSameUser(String username) {
         return getUsername().equals(username);
+    }
+    
+    private String dateToString(LocalDateTime d){
+        String hours = addZero(String.valueOf(d.getHour()));
+        String minutes = addZero(String.valueOf(d.getMinute()));
+        
+        String day = addZero(String.valueOf(d.getDayOfMonth()));
+        String month = addZero(String.valueOf(d.getMonthValue()));
+        String year = String.valueOf(d.getYear());
+
+        return hours + ":" + minutes + " - " + day + "." + month + "." + year;
+    }
+    
+    private String addZero(String s){
+        if (Integer.valueOf(s) < 10) {
+            return "0" + s;
+        }
+        return s;
     }
 }

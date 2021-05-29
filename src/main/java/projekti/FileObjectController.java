@@ -30,32 +30,32 @@ public class FileObjectController {
     }
 
     @PostMapping("/addFile")
-    public String addFile(@RequestParam("file") MultipartFile file, @RequestParam String type,
+    public String addFile(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String imageTo,
             @RequestParam String description) throws IOException {
         ArrayList<String> compatibles = new ArrayList();
         compatibles.add("image/jpeg");
         compatibles.add("image/jpg");
         compatibles.add("image/png");
-        if (!type.equals("profileImage")) {
+        if (imageTo != null && !imageTo.equals("profile")) {
             compatibles.add("image/gif");
         }
         if (compatibles.contains(file.getContentType())) {
-            FileObject fb = new FileObject();
-            fb.setName(removeFileTypes(file.getOriginalFilename()));
-            fb.setMediaType(file.getContentType());
-            fb.setSize(file.getSize());
+            FileObject fo = new FileObject();
+            fo.setName(removeFileTypes(file.getOriginalFilename()));
+            fo.setMediaType(file.getContentType());
+            fo.setSize(file.getSize());
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = auth.getName();
             Account account = accountService.getAccount(username, false);
-            fb.setOwner(account);
-            fb.setDescription(description);
-            fb.setContent(file.getBytes());
-            fileService.addNewFileObject(fb);
-            if (type.equals("profileImage")) {
-                account.setProfileImage(fb);
-                account.getAllProfileImages().add(fb);
-                accountService.save(account);
+            fo.setOwner(account);
+            fo.setDescription(description);
+            fo.setContent(file.getBytes());
+            fileService.addNewFileObject(fo);
+            if (imageTo != null && imageTo.equals("profile")) {
+                account.setProfileImage(fo);
             }
+            account.getImages().add(fo);
+            accountService.save(account);
         }
         return "redirect:/profile";
     }

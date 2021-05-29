@@ -16,17 +16,17 @@
             <div class="row">
                 <div class="col-4">
                     <!--Names-->
-                    <span th:text="${nickname}" style="font-size: 25px;"><b>nickname</b></span> 
+                    <b th:text="${nickname}" style="font-size: 25px">nickname</b>
                     <span th:text="'@' + ${username}" style="color: gray">username</span>  &nbsp;
-                    
+
                     <!--Change Nickname-->
                     <div th:if="${logged && sameUser}">
                         <form th:action="@{/changeNickname}" method="POST" style="display: inline;">
-                            <input class="form-control input-sml" placeholder="Enter new nickname" type="text" name="newNickname" style="display: inline;">
-                            <button type="submit" class="btn btn-sm input-sml" style="width: 80px;background-color: blue; display: inline; color: white;">Submit</button>
+                            <input class="form-control input-sml" placeholder="Enter new nickname" type="text" name="newNickname" style="display: inline; width: 140px">
+                                <button type="submit" class="btn btn-sm input-sml" style="width: 50px;background-color: blue; display: inline; color: white;">Submit</button>
                         </form>
                     </div>
-                    
+
                     <!--Follow-->
                     <div th:if="${logged && !sameUser && !followers.contains(looker)}">
                         <form th:action="@{/follow/{username}(username=${username})}" method="POST">
@@ -34,7 +34,7 @@
                                     color: white;">Follow</button>
                         </form>
                     </div>
-                    
+
                     <!--Unfollow-->
                     <div th:if="${logged && !sameUser && followers.contains(looker)}">
                         <form th:action="@{/unfollow/{username}(username=${username})}" method="POST">
@@ -42,9 +42,9 @@
                                     color: white;">Unfollow</button>
                         </form>
                     </div>
-                    
+
                     <br/>
-                    
+
                     <!--ProfileImage-->
                     <div th:if="${profileImage != null}"
                          style="width: 200px; height: 200px; border-radius: 50%;
@@ -59,63 +59,133 @@
                              style="object-fit: cover; width: 100%; height: 100%"/>
                     </div>
                     <br/>
-                    
-                    <!--Change ProfileImage-->
-                    <div th:if="${profileImage != null && sameUser}">
-                        <form th:action="@{/changeProfileImage}" method="POST">
-                            <div class="form-group">
-                                <label for="profileImages">Change profile image:</label>
-                                <select name="profileImageId" class="form-control">
-                                    <option th:text="${profileImage.name}" th:value="${profileImage.id}"></option>
-                                    <option th:each="image : ${allProfileImages}"
-                                            th:text="${image.name}" th:value="${image.id}"></option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Change</button>
-                        </form>
-                    </div>
-                    
-                    <!--Add new profileImage-->
+
+                    <!--Add new image-->
                     <div th:if="${sameUser}">
-                        <form th:action="@{/addFile}" method="POST" enctype="multipart/form-data">
+                        <form th:action="@{/addFile}" method="POST" enctype="multipart/form-data" onsubmit="return checkAddImageForm(this)">
                             <div class="form-group">
-                                <label for="file">Add new profile image:</label>
-                                <input type="file" name="file" id="file" class="form-control"/><br/>
-                                <input type="hidden" name="type" value="profileImage"/>
-                                <input type="hidden" name="description" value=" "/>
-                                <button type="submit" class="btn btn-primary">Add</button>
+                                <label for="file"><b>Add new image:</b></label>
+                                <input type="file" name="file" id="file"/><br/>
+                                <div style="color: grey; font-size: 12px;">(.jpg, .jpeg, .png) (.gif only for album)</div>
+                                <div><input type="checkbox" name="imageTo" value="profile"/> add as profile picture</div>
+                                Description:
+                                <textarea name="description" row="3" cols="25" class="form-control" id="description"></textarea>
+                                <div><button type="submit" class="btn btn-sm"
+                                             style="background-color: blue; color: white;">Add</button></div>
                             </div>
                         </form>
                     </div>
                     <br/>
-                    
+
                     Following:
                     <div class="scrollWindow form-control">
                         <div th:if="${following.size() == 0}">
                             Zero followed.
                         </div>
                         <div th:each="f : ${following}">
-                            <a th:href="@{/profile/{name}(name=${f.username})}" th:text="${f.nickname}">nimi</a>
+                            <a th:href="@{/profile/{name}/1(name=${f.username})}" th:text="${f.nickname}">nimi</a>
                         </div>
                     </div>
                     <br/>
-                    
+
                     Followers:
                     <div class="scrollWindow form-control">
                         <div th:if="${followers.size() == 0}">
                             Zero followed.
                         </div>
                         <div th:each="f : ${followers}">
-                            <a th:href="@{/profile/{name}(name=${f.username})}" th:text="${f.nickname}">nimi</a>
+                            <a th:href="@{/profile/{name}/1(name=${f.username})}" th:text="${f.nickname}">nimi</a>
                         </div>
                     </div>
                 </div>
-                
-                
+
+
                 <div class="col-8">
-                    oikea
+                    <h3>Images:</h3>
+                    <div>
+                        <div th:each="i: ${#numbers.sequence(0, images.size()-1)}" class='inline1'>
+                            <div style="width: 150px; height: 150px; margin: 5px">
+                                <img th:src="@{/images/{id}/content(id=${images.get(i).id})}" alt="Image: {name}(name=${images.get(i).name})"
+                                     style="object-fit: cover; width: 100%; height: 100%"/>
+                            </div>
+                        </div>
+                    </div>
+                    <br/>
+                    
+                    <h3>Messages:</h3>
+                    <div>
+                        <div th:each="message : ${messages}">
+                            <span th:text="${message.sender.nickname}">name</span><br/>
+                            <span th:text="${message.text}">message</span><br/>
+                            <span th:text="${message.dateInString}">dateTime</span><br/>
+                            <br/>
+                        </div>
+                    </div>
+                    <!--Page buttons-->
+                    <div>
+                        <form th:action="@{/goToPageInProfile}" method="POST">
+                            <input type="hidden" name="username" th:value="${username}"/>
+                            <span th:if="${pageCount > 5}">
+                                <input th:if="${current > 1}" class="page_btn" type="submit" name="page" value="previous"/>
+                                <span th:if="${3 >= current}">
+                                    <span th:each="i: ${#numbers.sequence(1, 5)}">
+                                        <input th:if="${i == current}" class="page_btn_activated" type="submit" name="page" th:value="${i}"/>
+                                        <input th:unless="${i == current}" class="page_btn" type="submit" name="page" th:value="${i}"/>
+                                    </span>
+                                </span>
+                                <span th:if="${current > 3}">
+                                    <input class="page_btn" type="submit" name="page" value="1"/> ...
+                                </span>
+                                <span th:if="current >= pageCount-2">
+                                    <span th:each="i: ${#numbers.sequence(pageCount-4, pageCount)}">
+                                        <input th:if="${i == current}" class="page_btn_activated" type="submit" name="page" th:value="${i}"/>
+                                        <input th:unless="${i == current}" class="page_btn" type="submit" name="page" th:value="${i}"/>
+                                    </span>
+                                </span>
+                                <span th:if="${current > 3}">
+                                    <span th:each="i: ${#numbers.sequence(current-2, current+2)}">
+                                        <input th:if="${i == current}" class="page_btn_activated" type="submit" name="page" th:value="${i}"/>
+                                        <input th:unless="${i == current}" class="page_btn" type="submit" name="page" th:value="${i}"/>
+                                    </span>
+                                </span>
+                                <span th:if="${pageCount-3 >= current}">
+                                    ... <input class="page_btn" type="submit" name="page" th:value="${pageCount}"/>
+                                </span>
+                            </span>
+                            <span th:unless="${pageCount > 5}">
+                                <input th:if="${current > 1}" class="page_btn" type="submit" name="page" th:value="previous"/>
+                                <span th:each="i: ${#numbers.sequence(1, pageCount)}">
+                                    <input th:if="${i == current}" class="page_btn_activated" type="submit" name="page" th:value="${i}"/>
+                                    <input th:unless="${i == current}" class="page_btn" type="submit" name="page" th:value="${i}"/>
+                                </span>
+                                <input th:if="${pageCount > current}" class="page_btn" type="submit" name="page" value="next"/>
+                            </span>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </body>
+
+    <script>
+        var description = document.getElementById("description");
+
+        function checkAddImageForm(form) {
+            var uploadBox = document.getElementById("file");
+            if (file.value != "") {
+                console.log(trim(description.value));
+                if (trim(description.value) == "") {
+                    alert("Write description!");
+                    return false;
+                }
+                return true;
+            } else {
+                alert("Choose the file first!");
+                return false;
+            }
+        }
+        function trim(s) {
+            return s.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+        }
+    </script>
 </html>

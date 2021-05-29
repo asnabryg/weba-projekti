@@ -22,6 +22,7 @@ public class Message extends AbstractPersistable<Long>{
     
     private String text;
     private LocalDateTime date;
+    private String dateInString;
     
     @OneToMany(mappedBy="message")
     private List<Vote> votes;
