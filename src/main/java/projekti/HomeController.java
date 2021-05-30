@@ -29,6 +29,9 @@ public class HomeController {
 
     @Autowired
     private HttpSession session;
+    
+    @Autowired
+    private FollowService followService;
 
     @Autowired
     private CommentRepository commentRepo;
@@ -70,10 +73,13 @@ public class HomeController {
         session.setAttribute("page", pageNumber);
         List<Long> followingIds = new ArrayList();
         Account account = accountService.getAccount(getUsername(), false);
-//        for (Account acc : account.getFollowing()) {
-//            followingIds.add(acc.getId());
-//        }
-//        followingIds.add(account.getId());
+        List<Integer> statuses = new ArrayList();
+        statuses.add(1);
+        List<Follow> following = followService.findAllByFollowerAndStatus(account, statuses);
+        for (Follow f : following) {
+            followingIds.add(f.getFollowing().getId());
+        }
+        followingIds.add(account.getId());
         checkSession(followingIds);
         Long maxPages = (Long) session.getAttribute("maxPages");
         List<Message> messages = messageService.findMessagesByAccounts(followingIds, pageNumber);
