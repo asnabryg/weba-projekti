@@ -12,10 +12,10 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Vote extends AbstractPersistable<Long> {
+public class ImageVote extends AbstractPersistable<Long> {
     
     @ManyToOne()
-    private Message message;
+    private FileObject file;
     
     @ManyToOne()
     private Account giver;

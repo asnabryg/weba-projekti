@@ -22,18 +22,83 @@
                                   placeholder="Write message..." class="form-control"></textarea>
                         <button class="btn btn-primary" type="submit">Submit message</button>
                     </form>
-                    
+
                     <!--Messages-->
                     <div>
-                        <div th:each="message : ${messages}">
-                            <span th:text="${message.sender.nickname}">name</span><br/>
-                            <span th:text="${message.text}">message</span><br/>
-                            <span th:text="${message.dateInString}">dateTime</span><br/>
-                            <br/>
+                        <div th:if="${messages.size() > 0}" th:each="i: ${#numbers.sequence(0, messages.size()-1)}"
+                             style="margin-top: 10px; margin-bottom: 5px;">
+                            <div style="border-style: solid; border-color: lightgrey; border-radius: 10px;">
+                                <form th:action="@{/giveVote}" method="POST">
+                                    <div th:if="${messages.get(i).sender.profileImage != null}"
+                                         style="width: 40px; height: 40px; border-radius: 50%;
+                                         overflow: hidden; display: inline-block;">
+                                        <img th:src="@{/images/{id}/content(id=${messages.get(i).sender.profileImage.id})}" alt="profileImage"
+                                             style="object-fit: cover; width: 100%; height: 100%"/>
+                                    </div>
+                                    <div th:if="${messages.get(i).sender.profileImage == null}"
+                                         style="width: 40px; height: 40px; border-radius: 50%;
+                                         overflow: hidden; display: inline-block;">
+                                        <img th:src="@{/images/avatar.jpg}" alt="profileImage"
+                                             style="object-fit: cover; width: 100%; height: 100%"/>
+                                    </div>
+                                    <a th:href="@{/profile/{username}(username=${messages.get(i).sender.username})}" th:text="${messages.get(i).sender.nickname}" style="position: relative; bottom: 10px; font-size: 20px; color: black; font-weight: bold;"></a>
+                                    <a th:href="@{/profile/{username}(username=${messages.get(i).sender.username})}" th:text="'@' + ${messages.get(i).sender.username}" style="color: grey; font-size: 15px; position: relative; bottom: 10px;"></a><br/>
+                                    <span th:text="${messages.get(i).text}">message</span><br/>
+                                    <span th:text="${messages.get(i).dateInString}">dateTime</span><br/>
+                                    <input type="hidden" name="messageId" th:value="${messages.get(i).id}"/>
+                                    <input type="hidden" name="webPage" th:value="@{/home/{current}(current=${current})}"/>
+                                    <div style="width: 30px; height: 30px; display: inline-block;">
+                                        <input type="image" th:src="@{/images/heart.png}" alt="heart"
+                                               th:style="${votes.get(i) ? 'filter: grayscale(0%); width: 100%; height: 100%;' : 'filter: grayscale(100%); opacity: 0.5; width: 100%; height: 100%;'}"/>
+                                    </div>
+                                    <span th:text="${voteCounts.get(i)}"
+                                          th:style="${votes.get(i) ? 'color: red; position: relative; bottom: 8px;' : 'color: black; position: relative; bottom: 8px;'}">count</span>
+                                    <span th:if="${messages.get(i).comments.size() <= 10}" th:text="'Comments: ' + ${messages.get(i).comments.size()}"
+                                          style="display: inline-block; position: relative; left: 10px; bottom: 8px;"></span>
+                                    <span th:if="${messages.get(i).comments.size() > 10}" th:text="'Comments: 10+'"
+                                          style="display: inline-block; position: relative; left: 10px; bottom: 8px;"></span>
+                                    <span th:if="${messages.get(i).comments.size() > 10}"
+                                          style="font-size: 13px; color: grey; display: inline-block;
+                                          position: relative; bottom: 8px; left: 10px;">(Only 10 last comments displayed)</span>
+                                </form>
+                            </div>
+                            <div style="border-style: solid; width: 75%; position: relative; left: 12.5%; bottom: 3px;
+                                 border-color: lightgrey; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+                                 overflow:auto; max-height: 250px;">
+                                <form th:action="@{/writeComment}" method="POST">
+                                    <input type="hidden" name="messageId" th:value="${messages.get(i).id}"/>
+                                    <input type="hidden" name="page" th:value="${current}"/>
+                                    Comment:
+                                    <textarea name="commentText" placeholder="Write comment.." rows="2" cols="50" class="form-control"></textarea>
+                                    <button type="submit" class="btn btn-sm" style="background-color: blue; color: white;">Send</button>
+                                </form>
+                                <hr/>
+                                <div th:if="${messages.get(i).comments.size() > 0}"
+                                     th:each="j: ${#numbers.sequence(messages.get(i).comments.size()-1, commentLimits.get(i))}"
+                                     style="margin-top: 5px; margin-bottom: 5px;">
+                                    <div th:if="${messages.get(i).comments.get(j).sender.profileImage != null}"
+                                         style="width: 40px; height: 40px; border-radius: 50%;
+                                         overflow: hidden; display: inline-block;">
+                                        <img th:src="@{/images/{id}/content(id=${messages.get(i).comments.get(j).sender.profileImage.id})}" alt="profileImage"
+                                             style="object-fit: cover; width: 100%; height: 100%"/>
+                                    </div>
+                                    <div th:if="${messages.get(i).comments.get(j).sender.profileImage == null}"
+                                         style="width: 40px; height: 40px; border-radius: 50%;
+                                         overflow: hidden; display: inline-block;">
+                                        <img th:src="@{/images/avatar.jpg}" alt="profileImage"
+                                             style="object-fit: cover; width: 100%; height: 100%"/>
+                                    </div>
+                                    <a th:href="@{/profile/{username}(username=${messages.get(i).comments.get(j).sender.username})}" th:text="${messages.get(i).comments.get(j).sender.nickname}" style="position: relative; bottom: 10px; font-size: 18px; font-weight: bold; color: black;"></a>
+                                    <a th:href="@{/profile/{username}(username=${messages.get(i).comments.get(j).sender.username})}" th:text="'@' + ${messages.get(i).comments.get(j).sender.username}" style="position: relative; bottom: 10px; font-size: 15px;color: grey;"></a><br/>
+                                    <span th:text="${messages.get(i).comments.get(j).text}"
+                                          style="position: relative; left: 45px;"></span>
+                                    <hr/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!--<span th:each="i: ${#numbers.sequence(1, 5)}" th:text="${i}">1</span>-->
-                    
+
                     <!--Page buttons-->
                     <div th:if="${pageCount > 1}">
                         <form th:action="@{/goToPage}" method="POST">
@@ -74,8 +139,8 @@
                             </span>
                         </form>
                     </div>
-                    
-                    
+
+
                 </div>
             </div>
         </div>

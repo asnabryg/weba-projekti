@@ -3,6 +3,7 @@ package projekti;
 
 import java.util.List;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,9 @@ public class Account extends AbstractPersistable<Long>{
     @OneToMany(mappedBy="giver")
     private List<Vote> votes;
     
+     @OneToMany(mappedBy="giver")
+    private List<ImageVote> imageVotes;
+    
     @OneToMany(mappedBy="sender")
     private List<Comment> comments;
     
@@ -35,12 +39,7 @@ public class Account extends AbstractPersistable<Long>{
     @OneToMany
     private List<FileObject> images;
     
-    @OneToMany
-    private List<Account> following;
+    @OneToMany(mappedBy="follower")
+    private List<Follow> follows;
     
-    @OneToMany
-    private List<Account> followers;
-    
-    @OneToMany
-    private List<Account> blockedAccounts;
 }

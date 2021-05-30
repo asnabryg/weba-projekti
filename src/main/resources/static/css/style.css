@@ -1,5 +1,5 @@
 .scrollWindow {
-    height:250px;
+    height:150px;
     width:200px;
     border:1px solid #ccc;
     font:16px/26px Georgia, Garamond, Serif;
@@ -23,15 +23,22 @@
 
 .tooltip1 .tooltiptext1 {
     visibility: hidden;
-    width: 200px;
-    background-color: black;
+    width: 150px;
+    background-color: #2a4d69;
     color: #fff;
-    text-align: center;
+    text-align: left;
     border-radius: 6px;
     padding: 5px 0;
 
     /* Position the tooltip */
     position: absolute;
+    left: 105%;
+    top: 0%;
+
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
     z-index: 1;
 }
 
@@ -52,7 +59,7 @@ body {
 
 .top{
     background-color: #2a4d69;
-    margin: -8px;
+    /*margin: -8px;*/
     padding: 10px;
     text-align: center;
 }
@@ -233,4 +240,24 @@ body {
     min-height:75%;
     height: auto !important;
     height: 800px;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #4489BF; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #2a4d69; 
 }

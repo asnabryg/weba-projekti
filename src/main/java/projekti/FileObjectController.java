@@ -2,12 +2,14 @@ package projekti;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import javax.transaction.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,25 +63,54 @@ public class FileObjectController {
     }
 
     @PostMapping("/changeProfileImage")
-    public String changeProfileImgage(@RequestParam Long profileImageId) {
+    public String changeProfileImgage(@RequestParam Long profileImageId,
+            @RequestParam(required = false) String webPage) {
+        if (!checkIfLoggedIn()) {
+            return "redirect:/login";
+        }
         Account account = accountService.getAccount(
                 SecurityContextHolder.getContext().getAuthentication().getName(), false);
         FileObject fb = fileService.getFileObject(profileImageId);
         account.setProfileImage(fb);
         accountService.save(account);
+        if (webPage != null) {
+            return "redirect:" + webPage;
+        }
         return "redirect:/profile";
     }
-    
+
     @PostMapping("/showImage")
-    public String showImage(@RequestParam Long imageId, @RequestParam String username){
+    public String showImage(@RequestParam Long imageId, @RequestParam String username) {
         return "redirect:/profile/" + username + "/image/" + imageId;
     }
-    
-    private String removeFileTypes(String name){
+
+    private String removeFileTypes(String name) {
         name = name.replace(".jpg", "");
         name = name.replace(".jpeg", "");
         name = name.replace(".png", "");
         name = name.replace(".gif", "");
         return name;
+    }
+
+    @PostMapping("/giveImageVote")
+    public String giveImageVote(@RequestParam Long fileId, @RequestParam String webPage) {
+        if (!checkIfLoggedIn()) {
+            return "redirect:/login";
+        }
+        Account account = accountService.getAccount(getUsername(), false);
+        FileObject file = fileService.getFileObject(fileId);
+
+        accountService.voteImage(account, file);
+        return "redirect:" + webPage;
+    }
+
+    private String getUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getName();
+    }
+
+    private boolean checkIfLoggedIn() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getPrincipal() instanceof UserDetails;
     }
 }

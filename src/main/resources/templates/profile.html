@@ -30,7 +30,7 @@
                     </div>
 
                     <!--Follow-->
-                    <div th:if="${logged && !sameUser && !followers.contains(looker)}">
+                    <div th:if="${logged && !sameUser && followStatus == 0}">
                         <form th:action="@{/follow/{username}(username=${username})}" method="POST">
                             <button type="submit" class="btn btn-sm"style="width: 50%; background-color: blue;
                                     color: white;">Follow</button>
@@ -38,12 +38,30 @@
                     </div>
 
                     <!--Unfollow-->
-                    <div th:if="${logged && !sameUser && followers.contains(looker)}">
-                        <form th:action="@{/unfollow/{username}(username=${username})}" method="POST">
+                    <div th:if="${logged && !sameUser && followStatus == 1}">
+                        <form th:action="@{/follow/{username}(username=${username})}" method="POST">
                             <button type="submit" class="btn btn-sm txt-center" style="background-color: red; width: 50%;
                                     color: white;">Unfollow</button>
                         </form>
                     </div>
+                    
+                    <!--Block-->
+                    <div th:if="${(logged && !sameUser) && (followStatus >= 0 || followStatus == -2)}" style="display: inline-block;">
+                        <form th:action="@{/block/{username}(username=${username})}" method="POST">
+                            <button type="submit" class="btn btn-sm"style="background-color: red;
+                                    color: white;">Block</button>
+                        </form>
+                    </div>
+                    
+                    <!--Unblock-->
+                    <div th:if="${(logged && !sameUser) && (followStatus == -1 || followStatus == -3)}" style="display: inline-block;">
+                        <form th:action="@{/block/{username}(username=${username})}" method="POST">
+                            <button type="submit" class="btn btn-sm"style="width: 40%; background-color: red;
+                                    color: white;">Unblock</button>
+                        </form>
+                    </div>
+                    
+                    
 
                     <br/>
 
@@ -85,7 +103,7 @@
                             Zero followed.
                         </div>
                         <div th:each="f : ${following}">
-                            <a th:href="@{/profile/{name}/1(name=${f.username})}" th:text="${f.nickname}">nimi</a>
+                            <a th:if="${f.status > 0}" th:href="@{/profile/{name}/1(name=${f.following.username})}" th:text="${f.following.nickname}">nimi</a>
                         </div>
                     </div>
                     <br/>
@@ -96,9 +114,20 @@
                             Zero followed.
                         </div>
                         <div th:each="f : ${followers}">
-                            <a th:href="@{/profile/{name}/1(name=${f.username})}" th:text="${f.nickname}">nimi</a>
+                            <a th:if="${f.status > 0}" th:href="@{/profile/{name}/1(name=${f.follower.username})}" th:text="${f.follower.nickname}">nimi</a>
                         </div>
-                    </div>
+                    </div> 
+                    <br/>
+                    
+                    Blocked users:
+                    <div class="scrollWindow form-control">
+                        <div th:if="${blocked.size() == 0}">
+                            You haven't blocked anyone.
+                        </div>
+                        <div th:each="b : ${blocked}">
+                            <a th:if="${b.status == -1 or b.status == -3}" th:href="@{/profile/{name}/1(name=${b.following.username})}" th:text="${b.following.nickname}">nimi</a>
+                        </div>
+                    </div> 
                 </div>
 
 
@@ -110,9 +139,14 @@
                                 <form th:action="@{/showImage}" method="POST">
                                     <input type="hidden" name="username" th:value="${username}"/>
                                     <input type="hidden" name="imageId" th:value="${images.get(i).id}"/>
-                                    <div style="width: 150px; height: 150px; margin: 5px">
+                                    <div class="tooltip1" style="width: 150px; height: 150px; margin: 5px">
                                         <input type="image" th:src="@{/images/{id}/content(id=${images.get(i).id})}" alt="Image: {name}(name=${images.get(i).name})"
                                                style="object-fit: cover; width: 100%; height: 100%"/>
+                                        <div class="tooltiptext1">
+                                            <b th:text="${images.get(i).name}"></b><br/>
+                                            <span th:text="'Likes: ' + ${voteCounts.get(i)}">Likes: 12</span><br/>
+                                            <span text="Comments: 8">Comments: 8</span>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -126,6 +160,18 @@
                         <h3>Messages:</h3>
                         <div>
                             <div th:each="message : ${messages}">
+                                <div th:if="${message.sender.profileImage != null}"
+                                     style="width: 40px; height: 40px; border-radius: 50%;
+                                     overflow: hidden; display: inline-block;">
+                                    <img th:src="@{/images/{id}/content(id=${message.sender.profileImage.id})}" alt="profileImage"
+                                         style="object-fit: cover; width: 100%; height: 100%"/>
+                                </div>
+                                <div th:if="${message.sender.profileImage == null}"
+                                     style="width: 40px; height: 40px; border-radius: 50%;
+                                     overflow: hidden; display: inline-block;">
+                                    <img th:src="@{/images/avatar.jpg}" alt="profileImage"
+                                         style="object-fit: cover; width: 100%; height: 100%"/>
+                                </div>
                                 <span th:text="${message.sender.nickname}">name</span><br/>
                                 <span th:text="${message.text}">message</span><br/>
                                 <span th:text="${message.dateInString}">dateTime</span><br/>
@@ -178,8 +224,14 @@
                         </div>
                     </div>
                     <div th:if="${showImage}">
-                        <form th:action="@{/profile/{username}(username=${username})}" method="GET">
-                            <button class="btn btn-primary" type="submit" style="background-color: red; color: white; border-color: red">Back</button>
+                        <form th:action="@{/profile/{username}(username=${username})}" method="GET"
+                              style="display: inline-block;">
+                            <button class="btn btn-primary" type="submit" style="background-color: red; color: white; border-color: red; display: inline-block;">Back</button>
+                        </form>
+                        <form th:action="@{/changeProfileImage}" method="POST" style="display: inline-block;">
+                            <input type="hidden" name="profileImageId" th:value="${image.id}"/>
+                            <input type="hidden" name="webPage" th:value="@{/profile/{username}/image/{imageId}(username=${username}, imageId=${image.id})}"/>
+                            <button class="btn btn-primary" type="submit" style="display: inline-block;">Set as profile picture</button>
                         </form>
                         <div style="max-width: 750px; max-height: 700px;">
                             <img th:value="${image.id}" th:src="@{/images/{id}/content(id=${image.id})}" alt="Image: {name}(name=${image.name})"
@@ -188,6 +240,16 @@
                         <br/>
                         <b th:text="${image.name}"></b>
                         <div th:text="${image.description}"></div>
+                        <form th:action="@{/giveImageVote}" method="POST">
+                            <input type="hidden" name="fileId" th:value="${image.id}"/>
+                            <input type="hidden" name="webPage" th:value="@{/profile/{username}/image/{imageId}(username=${username}, imageId=${image.id})}"/>
+                            <div style="width: 30px; height: 30px; display: inline-block;">
+                                <input type="image" th:src="@{/images/heart.png}" alt="heart"
+                                       th:style="${isVoted ? 'filter: grayscale(0%); width: 100%; height: 100%;' : 'filter: grayscale(100%); opacity: 0.5; width: 100%; height: 100%;'}"/>
+                            </div>
+                            <span th:text="${voteCount}"
+                                  th:style="${isVoted ? 'color: red; position: relative; bottom: 7px;' : 'color: black; position: relative; bottom: 7px;'}">count</span>
+                        </form>
                     </div>
                 </div>
             </div>

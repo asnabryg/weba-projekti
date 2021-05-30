@@ -22,11 +22,22 @@ public class MessageService {
         return messageRepo.findBySender(sender);
     }
     
+    public Message getMessageById(Long id){
+        return messageRepo.getOne(id);
+    }
+    
     public List<Message> findMessagesByAccounts(List<Long> senderIds, Long page){
         Long limit = 25L;
         Long offsetLong = (limit * page) - limit;
         int offset = offsetLong.intValue();
         return messageRepo.findBySenderIds(senderIds, 25, offset);
+    }
+    
+    public List<Message> findMessagesByAccountsWtihVotes(List<Long> senderIds, Long page, Long accountId){
+        Long limit = 25L;
+        Long offsetLong = (limit * page) - limit;
+        int offset = offsetLong.intValue();
+        return messageRepo.findBySenderIdsWithVotes(senderIds, 25, offset, accountId);
     }
     
     @Transactional
