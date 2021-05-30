@@ -68,7 +68,11 @@ public class FileObjectController {
         account.setProfileImage(fb);
         accountService.save(account);
         return "redirect:/profile";
-
+    }
+    
+    @PostMapping("/showImage")
+    public String showImage(@RequestParam Long imageId, @RequestParam String username){
+        return "redirect:/profile/" + username + "/image/" + imageId;
     }
     
     private String removeFileTypes(String name){

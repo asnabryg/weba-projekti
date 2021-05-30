@@ -27,6 +27,9 @@ public class AccountController {
     
     @Autowired
     private MessageService messageService;
+    
+    @Autowired
+    private FileObjectService fileService;
 
     @Autowired
     private HttpSession session;
@@ -71,6 +74,7 @@ public class AccountController {
         model.addAttribute("followers", account.getFollowers());
         model.addAttribute("blockedUsers", account.getBlockedAccounts());
         model.addAttribute("images", account.getImages());
+        model.addAttribute("showImage", false);
         
         List<Long> Ids = new ArrayList();
         Ids.add(account.getId());
@@ -116,6 +120,38 @@ public class AccountController {
         }
         session.setAttribute("pageProfile", sessionPage);
         return "redirect:/profile/" + username + "/" + sessionPage;
+    }
+    
+    @GetMapping("/profile/{username}/image/{imageId}")
+    public String showImage(Model model, @PathVariable String username, @PathVariable String imageId){
+        FileObject image = fileService.getFileObject(Long.valueOf(imageId));
+        if (!image.getOwner().getUsername().equals(username)) {
+            return "redirect:/profile/" + username;
+        }
+        
+        model.addAttribute("sameUser", isSameUser(username));
+        model.addAttribute("logged", checkIfLoggedIn());
+        if (!isSameUser(username)) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            model.addAttribute("looker", accountService.getAccount(auth.getName(), false));
+        }
+        Account account = accountService.getAccount(username, false);
+        model.addAttribute("username", username);
+        model.addAttribute("nickname", account.getNickname());
+        FileObject profileImage = null;
+        if (account.getProfileImage() != null) {
+            profileImage = account.getProfileImage();
+        }
+//        System.out.println("image " + profileImage.getName());
+        model.addAttribute("profileImage", profileImage);
+        
+        model.addAttribute("following", account.getFollowing());
+        model.addAttribute("followers", account.getFollowers());
+        model.addAttribute("blockedUsers", account.getBlockedAccounts());
+  
+        model.addAttribute("image", image);
+        model.addAttribute("showImage", true);
+        return "profile";
     }
     
     @PostMapping("/follow/{username}")
