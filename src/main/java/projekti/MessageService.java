@@ -33,13 +33,6 @@ public class MessageService {
         return messageRepo.findBySenderIds(senderIds, 25, offset);
     }
     
-    public List<Message> findMessagesByAccountsWtihVotes(List<Long> senderIds, Long page, Long accountId){
-        Long limit = 25L;
-        Long offsetLong = (limit * page) - limit;
-        int offset = offsetLong.intValue();
-        return messageRepo.findBySenderIdsWithVotes(senderIds, 25, offset, accountId);
-    }
-    
     @Transactional
     public void save(Message message){
         messageRepo.save(message);

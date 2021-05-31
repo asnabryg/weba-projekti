@@ -163,14 +163,14 @@ public class HomeController {
     }
 
     @PostMapping("/writeComment")
-    public String writeComment(@RequestParam Long page, @RequestParam Long messageId, @RequestParam String commentText) {
+    public String writeComment(@RequestParam String webPage, @RequestParam Long messageId, @RequestParam String commentText) {
         Message message = messageService.getMessageById(messageId);
         Comment comment = new Comment();
         comment.setText(commentText);
         comment.setMessage(message);
         comment.setSender(accountService.getAccount(getUsername(), false));
         commentRepo.save(comment);
-        return "redirect:/home/" + page;
+        return "redirect:" + webPage;
     }
 
     private String getUsername() {

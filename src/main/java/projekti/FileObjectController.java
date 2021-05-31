@@ -30,6 +30,13 @@ public class FileObjectController {
     public byte[] showContent(@PathVariable Long id) {
         return fileService.getFileObject(id).getContent();
     }
+    
+    @ResponseBody
+    @GetMapping("/profileImage/{username}")
+    public byte[] showProfileImageContent(@PathVariable String username) {
+        Account acc = accountService.getAccount(username, false);
+        return acc.getProfileImage().getContent();
+    }
 
     @PostMapping("/addFile")
     public String addFile(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String imageTo,

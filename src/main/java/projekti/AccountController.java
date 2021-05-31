@@ -37,6 +37,9 @@ public class AccountController {
     private FollowService followService;
 
     @Autowired
+    private ImageCommentRepository imageCommentRepo;
+
+    @Autowired
     private HttpSession session;
 
     @GetMapping("/profile")
@@ -71,7 +74,7 @@ public class AccountController {
             imageIds.add(image.getId());
         }
 
-        List<Long> voteCounts = new ArrayList();
+        List<Long> imageVoteCounts = new ArrayList();
         for (FileObject image : images) {
             boolean voted = false;
             Long count = 0L;
@@ -83,34 +86,63 @@ public class AccountController {
                     count++;
                 }
             }
+            imageVoteCounts.add(count);
+        }
+        model.addAttribute("imageVoteCounts", imageVoteCounts);
+
+        List<Boolean> votes = new ArrayList();
+        List<Long> voteCounts = new ArrayList();
+        List<Long> commentLimits = new ArrayList();
+        List<Long> Ids = new ArrayList();
+        Ids.add(account.getId());
+        List<Message> messages = messageService.findMessagesByAccounts(Ids, pageNumber);
+        for (Message message : messages) {
+            boolean voted = false;
+            Long count = 0L;
+            for (Vote vote : message.getVotes()) {
+                if (vote.getGiver().getUsername().equals(account.getUsername())) {
+                    voted = vote.isVoted();
+                }
+                if (vote.isVoted()) {
+                    count++;
+                }
+            }
+            Long c = Long.valueOf(message.getComments().size()) - 10;
+            if (c < 0L) {
+                c = 0L;
+            }
+            commentLimits.add(c);
+            System.out.println("VoteCount: " + count + ", messageId: " + message.getId());
+            votes.add(voted);
             voteCounts.add(count);
         }
+        model.addAttribute("commentLimits", commentLimits);
+        model.addAttribute("votes", votes);
         model.addAttribute("voteCounts", voteCounts);
 
         model.addAttribute("imageIds", imageIds);
         model.addAttribute("following", followService.findAllFollowings(account));
         model.addAttribute("followers", followService.findAllFollowers(account));
-        List<Integer> statuses = new ArrayList();
-        statuses.add(-1);
-        statuses.add(-3);
-        List<Follow> blocked = followService.findAllByFollowerAndStatus(accountService.getAccount(getUsername(), false), statuses);
-        model.addAttribute("blocked", blocked);
-        if (!isSameUser(username)) {
-            Integer status = 0;
-            Follow ownFollow = followService.findByFollowerAndFollowing(accountService.getAccount(getUsername(), false), account);
-            if (ownFollow != null) {
-                status = ownFollow.getStatus();
-            }
-            model.addAttribute("followStatus", status);
+        if (checkIfLoggedIn()) {
+            List<Integer> statuses = new ArrayList();
+            statuses.add(-1);
+            statuses.add(-3);
+            List<Follow> blocked = followService.findAllByFollowerAndStatus(accountService.getAccount(getUsername(), false), statuses);
+            model.addAttribute("blocked", blocked);
+            if (!isSameUser(username)) {
+                Integer status = 0;
+                Follow ownFollow = followService.findByFollowerAndFollowing(accountService.getAccount(getUsername(), false), account);
+                if (ownFollow != null) {
+                    status = ownFollow.getStatus();
+                }
+                model.addAttribute("followStatus", status);
 
+            }
         }
         model.addAttribute("images", account.getImages());
         model.addAttribute("showImage", false);
 
-        List<Long> Ids = new ArrayList();
-        Ids.add(account.getId());
         Long maxPages = (Long) session.getAttribute("maxPages");
-        List<Message> messages = messageService.findMessagesByAccounts(Ids, pageNumber);
         model.addAttribute("messages", messages);
 
         model.addAttribute("pageCount", maxPages);
@@ -192,8 +224,20 @@ public class AccountController {
         model.addAttribute("followers", followService.findAllFollowers(account));
         model.addAttribute("blocked", blocked);
         model.addAttribute("image", image);
+        System.out.println("MITÄ?");
         model.addAttribute("showImage", true);
         return "profile";
+    }
+
+    @PostMapping("/writeImageComment")
+    public String writeComment(@RequestParam Long fileId, @RequestParam String commentText, @RequestParam String webPage) {
+        FileObject fo = fileService.getFileObject(fileId);
+        ImageComment comment = new ImageComment();
+        comment.setText(commentText);
+        comment.setFile(fo);
+        comment.setSender(accountService.getAccount(getUsername(), false));
+        imageCommentRepo.save(comment);
+        return "redirect:" + webPage;
     }
 
     @PostMapping("/follow/{username}")
@@ -338,7 +382,7 @@ public class AccountController {
         return "register";
     }
 
-    @PostMapping("register")
+    @PostMapping("/register")
     public String postRegister(@RequestParam String username, @RequestParam String password,
             @RequestParam String nickname, @RequestParam String passwordConfirm) {
         if (accountService.getAccount(username, false) != null) {

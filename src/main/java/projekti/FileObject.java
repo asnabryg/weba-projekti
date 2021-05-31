@@ -30,6 +30,9 @@ public class FileObject extends AbstractPersistable<Long>{
     @OneToMany(mappedBy="file")
     private List<ImageVote> imageVotes;
     
+    @OneToMany(mappedBy="file")
+    private List<ImageComment> comments;
+    
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private byte[] content;

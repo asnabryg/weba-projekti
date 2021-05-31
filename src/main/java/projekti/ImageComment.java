@@ -13,10 +13,10 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comment extends AbstractPersistable<Long> {
+public class ImageComment extends AbstractPersistable<Long> {
     
     @ManyToOne
-    private Message message;
+    private FileObject file;
     
     @ManyToOne
     private Account sender;
