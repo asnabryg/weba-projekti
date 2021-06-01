@@ -15,8 +15,13 @@
                 <!--Etusivu button-->
                 <div class="top_btns_div">
                     <div class="top_btn_div">
-                        <form action="/home">
+                        <form action="/home" th:if="${session.logged}">
                             <input class="top_btn" type="submit" value="Home"/>
+                        </form>
+                    </div>
+                    <div class="top_btn_div" th:if="${session.logged}">
+                        <form action="/findUsers">
+                            <input class="top_btn" type="submit" value="Find users"/>
                         </form>
                     </div>
 

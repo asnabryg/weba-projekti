@@ -38,24 +38,16 @@ public class AccountService {
         }
     }
     
-    @Transactional
-    public void setFollow(String followerUsername, String followingUsername){
-//        Account follower = accountRepo.findByUsername(followerUsername);
-//        Account following = accountRepo.findByUsername(followingUsername);
-//        follower.getFollowing().add(following);
-//        following.getFollowers().add(follower);
-//        save(follower);
-//        save(following);
+    public List<Account> findAllLikeUsername(String username){
+        return accountRepo.findAllByUsernameContainingIgnoreCase(username);
     }
     
-    @Transactional
-    public void unfollow(String followerUsername, String followingUsername){
-//        Account follower = accountRepo.findByUsername(followerUsername);
-//        Account following = accountRepo.findByUsername(followingUsername);
-//        follower.getFollowing().remove(following);
-//        following.getFollowers().remove(follower);
-//        save(follower);
-//        save(following);
+    public List<Account> findAllLikeNickname(String nickaname){
+        return accountRepo.findAllByNicknameContainingIgnoreCase(nickaname);
+    }
+    
+    public List<Account> getFiveRandomAccounts(String username){
+        return accountRepo.getFiveRandomAccounts(username);
     }
     
     @Transactional

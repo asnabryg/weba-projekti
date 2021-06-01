@@ -100,8 +100,11 @@
 
                     Following:
                     <div class="scrollWindow form-control">
-                        <div th:each="f : ${following}">
-                            <a th:if="${f.status > 0}" th:href="@{/profile/{name}/1(name=${f.following.username})}" th:text="${f.following.nickname}">nimi</a>
+                        <div th:each="f : ${following}" style="text-align: center;">
+                            <a th:if="${f.status > 0}" th:href="@{/profile/{name}/1(name=${f.following.username})}" th:text="${f.following.nickname}" style="text-align: center;">nimi</a>
+                            <br/>
+                            <span th:if="${f.status > 0}" style="font-size: 14px;" th:text="${f.date}"></span>
+                            <hr th:if="${f.status > 0}" />
                         </div>
                     </div>
                     <br/>
@@ -298,11 +301,13 @@
                               style="display: inline-block;">
                             <button class="btn btn-primary" type="submit" style="background-color: red; color: white; border-color: red; display: inline-block;">Back</button>
                         </form>
-                        <form th:action="@{/changeProfileImage}" method="POST" style="display: inline-block;">
-                            <input type="hidden" name="profileImageId" th:value="${image.id}"/>
-                            <input type="hidden" name="webPage" th:value="@{/profile/{username}/image/{imageId}(username=${username}, imageId=${image.id})}"/>
-                            <button class="btn btn-primary" type="submit" style="display: inline-block;">Set as profile picture</button>
-                        </form>
+                        <div th:if="${sameUser}" style="display: inline-block;">
+                            <form th:action="@{/changeProfileImage}" method="POST">
+                                <input type="hidden" name="profileImageId" th:value="${image.id}"/>
+                                <input type="hidden" name="webPage" th:value="@{/profile/{username}/image/{imageId}(username=${username}, imageId=${image.id})}"/>
+                                <button class="btn btn-primary" type="submit" style="display: inline-block;">Set as profile picture</button>
+                            </form>
+                        </div>
                         <div style="">
                             <img th:value="${image.id}" th:src="@{/images/{id}/content(id=${image.id})}" alt="Image: {name}(name=${image.name})"
                                  style="height: 100%; max-width: 850px; max-height: 700px;"/>

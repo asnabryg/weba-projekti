@@ -172,6 +172,29 @@ public class HomeController {
         commentRepo.save(comment);
         return "redirect:" + webPage;
     }
+    
+    @GetMapping("/findUsers")
+    public String findUsers(Model model){
+        model.addAttribute("find", false);
+        List<Account> randomAccounts = accountService.getFiveRandomAccounts(getUsername());
+        model.addAttribute("randomAccounts", randomAccounts);
+        return "findUsers";
+    }
+    
+    @GetMapping("/findUsers/{name}")
+    public String findUsersWithName(Model model, @PathVariable String name){
+        List<Account> accountsWithUsername = accountService.findAllLikeUsername(name);
+        List<Account> accountsWithNickname = accountService.findAllLikeNickname(name);
+        model.addAttribute("find", true);
+        model.addAttribute("accountsWithUsername", accountsWithUsername);
+        model.addAttribute("accountsWithNickname", accountsWithNickname);
+        return "findUsers";
+    }
+    
+    @PostMapping("/findUserWithUsername")
+    public String findUserWithUsername(@RequestParam String name){
+        return "redirect:/findUsers/" + name;
+    }
 
     private String getUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

@@ -1,5 +1,6 @@
 package projekti;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -253,8 +253,10 @@ public class AccountController {
         } else {
             if (follow.getStatus() == 0 || follow.getStatus() == -1) {
                 follow.setStatus(1);
+                follow.setDate(LocalDate.now());
             } else if (follow.getStatus() == 1) {
                 follow.setStatus(0);
+                follow.setDate(null);
             } else {
                 return "redirect:/profile/" + username;
             }
@@ -276,14 +278,14 @@ public class AccountController {
             followBlocker.setFollower(blocker);
             followBlocker.setFollowing(blocking);
             followBlocker.setStatus(-1);
-            followBlocker.setDate(LocalDateTime.now());
+            followBlocker.setDate(LocalDate.now());
             if (followBlocking == null) {
                 followBlocking = new Follow();
             }
             followBlocking.setFollower(blocking);
             followBlocking.setFollowing(blocker);
             followBlocking.setStatus(-2);
-            followBlocking.setDate(LocalDateTime.now());
+            followBlocking.setDate(null);
             followService.save(followBlocker);
             followService.save(followBlocking);
             return "redirect:/profile/" + username;
@@ -292,28 +294,26 @@ public class AccountController {
                 if (followBlocker.getStatus() >= 0) {
                     //block
                     followBlocker.setStatus(-1);
-                    followBlocker.setDate(LocalDateTime.now());
+                    followBlocker.setDate(LocalDate.now());
                     followBlocking.setStatus(-2);
-                    followBlocking.setDate(LocalDateTime.now());
+                    followBlocking.setDate(null);
                 } else if (followBlocker.getStatus() == -2) {
                     //block
                     followBlocker.setStatus(-3);
-                    followBlocker.setDate(LocalDateTime.now());
+                    followBlocker.setDate(LocalDate.now());
                     followBlocking.setStatus(-3);
-                    followBlocking.setDate(LocalDateTime.now());
                 } else if (followBlocker.getStatus() == -1) {
                     //unblock
                     followBlocker.setStatus(0);
-                    followBlocker.setDate(LocalDateTime.now());
+                    followBlocker.setDate(null);
                     followBlocking.setStatus(0);
-                    followBlocking.setDate(LocalDateTime.now());
+                    followBlocking.setDate(null);
 
                 } else if (followBlocker.getStatus() == -3) {
                     //unblock
                     followBlocker.setStatus(-2);
-                    followBlocker.setDate(LocalDateTime.now());
+                    followBlocker.setDate(null);
                     followBlocking.setStatus(-1);
-                    followBlocking.setDate(LocalDateTime.now());
                 }
                 followService.save(followBlocker);
                 followService.save(followBlocking);
@@ -321,12 +321,12 @@ public class AccountController {
             } else {
                 //block
                 followBlocker.setStatus(-1);
-                followBlocker.setDate(LocalDateTime.now());
+                followBlocker.setDate(LocalDate.now());
                 followBlocking = new Follow();
                 followBlocking.setFollower(blocking);
                 followBlocking.setFollowing(blocker);
                 followBlocking.setStatus(-2);
-                followBlocking.setDate(LocalDateTime.now());
+                followBlocking.setDate(null);
                 followService.save(followBlocker);
                 followService.save(followBlocking);
                 return "redirect:/profile/" + username;
