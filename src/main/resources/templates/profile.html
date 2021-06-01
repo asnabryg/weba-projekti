@@ -111,8 +111,11 @@
 
                     Followers:
                     <div class="scrollWindow form-control">
-                        <div th:each="f : ${followers}">
-                            <a th:if="${f.status > 0}" th:href="@{/profile/{name}/1(name=${f.follower.username})}" th:text="${f.follower.nickname}">nimi</a>
+                        <div th:each="f : ${followers}"  style="text-align: center;">
+                            <a th:if="${f.status > 0}" th:href="@{/profile/{name}/1(name=${f.follower.username})}" th:text="${f.follower.nickname}" style="text-align: center;">nimi</a>
+                            <br/>
+                            <span th:if="${f.status > 0}" style="font-size: 14px;" th:text="${f.date}"></span>
+                            <hr th:if="${f.status > 0}" />
                         </div>
                     </div> 
                     <br/>
@@ -120,8 +123,11 @@
                     <div th:if="${logged && sameUser}">
                         Blocked users:
                         <div class="scrollWindow form-control">
-                            <div th:each="b : ${blocked}">
+                            <div th:each="b : ${blocked}"  style="text-align: center;">
                                 <a th:if="${b.status == -1 or b.status == -3}" th:href="@{/profile/{name}/1(name=${b.following.username})}" th:text="${b.following.nickname}">nimi</a>
+                                <br/>
+                                <span style="font-size: 14px;" th:text="${b.date}"></span>
+                                <hr/>
                             </div>
                         </div> 
                     </div>
@@ -172,6 +178,12 @@
                         </div>
                         <div th:if="${!logged}">
                             <p style="color:grey;"><a th:href="@{/login}">Login</a> to see messages.</p>
+                        </div>
+                        <div th:if="${followStatus == -1 || followStatus == -3}">
+                            <p style="color:grey;">You have blocked the user. Neither sees the other's messages.</p>
+                        </div>
+                        <div th:if="${followStatus == -2}">
+                            <p style="color:grey;">User has blocked you. Neither sees the other's messages.</p>
                         </div>
                         <div th:if="${followStatus == 1 || sameUser}">
                             <div th:if="${messages.size() > 0}" th:each="i: ${#numbers.sequence(0, messages.size()-1)}"
@@ -246,12 +258,10 @@
                                 </div>
 
                             </div>
-                            <div th:if="${followStatus == -1 || followStatus == -3}">
-                                <p style="color:grey;">You have blocked the user. Neither sees the other's messages.</p>
+                            <div th:if="${messages.size() == 0 && (followStatus == 1 || sameUser)}">
+                                <p style="color:grey;">No Messages.</p>
                             </div>
-                            <div th:if="${followStatus == -2}">
-                                <p style="color:grey;">User has blocked you. Neither sees the other's messages.</p>
-                            </div>
+
 
                             <!--Page buttons-->
                             <div th:if="${pageCount > 1}">

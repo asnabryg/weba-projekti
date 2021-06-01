@@ -141,8 +141,11 @@ public class AccountController {
         }
         model.addAttribute("images", account.getImages());
         model.addAttribute("showImage", false);
-
-        Long maxPages = (Long) session.getAttribute("maxPages");
+        
+        List<Long> followingIds = new ArrayList();
+        followingIds.add(account.getId());
+        checkSession(followingIds);
+        Long maxPages = (Long) session.getAttribute("maxPagesProfile");
         model.addAttribute("messages", messages);
 
         model.addAttribute("pageCount", maxPages);
