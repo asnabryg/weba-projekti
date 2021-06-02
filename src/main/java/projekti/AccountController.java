@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpSession;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,6 +42,9 @@ public class AccountController {
 
     @Autowired
     private HttpSession session;
+    
+    @Autowired
+    Environment env;
 
     @GetMapping("/profile")
     public String redirectProfile() {
@@ -150,6 +154,12 @@ public class AccountController {
 
         model.addAttribute("pageCount", maxPages);
         model.addAttribute("current", pageNumber);
+        
+        System.out.println("PROFILE length " + env.getActiveProfiles().length);
+        for (int i = 0; i < env.getActiveProfiles().length; i++) {
+            System.out.println("PROFILE " + env.getActiveProfiles()[i]);
+        }
+        
         return "profile";
     }
 
@@ -350,15 +360,17 @@ public class AccountController {
         accountService.save(account);
         return "redirect:/profile/" + username;
     }
+    
 
     @GetMapping("/login")
     public String login(Model model, @RequestParam Map<String, String> params) {
         if (checkIfLoggedIn()) {
             if (params.containsKey("logout")) {
                 session.setAttribute("logged", false);
+                session.invalidate();
                 return "login";
             }
-            return "redirect:/index";
+            return "redirect:/home";
         }
         if (params.containsKey("error")) {
             model.addAttribute("error", params.get("error").equals("true"));
@@ -368,7 +380,9 @@ public class AccountController {
 
     @GetMapping("/loginSuccess")
     public String loginSuccess() {
+        System.out.println("ASD");
         if (checkIfLoggedIn()) {
+            System.out.println("123");
             session.setAttribute("logged", true);
         }
         return "redirect:/home";
