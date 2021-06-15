@@ -28,4 +28,9 @@ public class FileObjectService {
     public List<FileObject> getAccountImages(Account owner){
         return fileRepo.findByOwner(owner);
     }
+    
+    @Transactional
+    public void deleteFileObject(Long id){
+        fileRepo.deleteFileObjectWithId(id);
+    }
 }

@@ -88,6 +88,7 @@
                                 <label for="file"><b>Add new image:</b></label>
                                 <input type="file" name="file" id="file"/><br/>
                                 <div style="color: grey; font-size: 12px;">(.jpg, .jpeg, .png) (.gif only for album)</div>
+                                <div style="color: grey; font-size: 12px;">max size: 1.04 MB</div>
                                 <div><input type="checkbox" name="imageTo" value="profile"/> add as profile picture</div>
                                 Description:
                                 <textarea name="description" row="3" cols="25" class="form-control" id="description" style="max-width: 200px"></textarea>
@@ -95,6 +96,12 @@
                                              style="background-color: blue; color: white;">Add</button></div>
                             </div>
                         </form>
+                        <div th:if="${error}">
+                            <div th:text="${errorMessage}"
+                                 style="color: red; font-size: 14px; max-width: 200px;">
+                                errorMessage
+                            </div>
+                        </div>
                     </div>
                     <br/>
 
@@ -316,6 +323,11 @@
                                 <input type="hidden" name="profileImageId" th:value="${image.id}"/>
                                 <input type="hidden" name="webPage" th:value="@{/profile/{username}/image/{imageId}(username=${username}, imageId=${image.id})}"/>
                                 <button class="btn btn-primary" type="submit" style="display: inline-block;">Set as profile picture</button>
+                            </form>
+                            <form th:action="@{/deleteImage}" method="POST">
+                                <input type="hidden" name="imageId" th:value="${image.id}"/>
+                                <input type="hidden" name="webPage" th:value="@{/profile/{username}(username=${username})}"/>
+                                <button class="btn btn-primary" type="submit" style="background-color: red; color: white; border-color: red;">Delete</button>
                             </form>
                         </div>
                         <div style="">

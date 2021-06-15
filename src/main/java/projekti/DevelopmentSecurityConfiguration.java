@@ -26,9 +26,9 @@ public class DevelopmentSecurityConfiguration extends WebSecurityConfigurerAdapt
 
 //        http.csrf().disable();
 //        http.headers().frameOptions().sameOrigin();
-        // Pyyntöjä ei tarkasteta
-        //sec.ignoring().antMatchers("/**");
-        //authenticated()
+//         Pyyntöjä ei tarkasteta
+//        sec.ignoring().antMatchers("/**");
+//        authenticated()
         
         http.formLogin().loginPage("/login").loginProcessingUrl("/perform_login")
                 .defaultSuccessUrl("/loginSuccess").failureUrl("/login?error=true");

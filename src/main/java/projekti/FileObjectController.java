@@ -41,6 +41,11 @@ public class FileObjectController {
     @PostMapping("/addFile")
     public String addFile(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String imageTo,
             @RequestParam String description) throws IOException {
+        String username = getUsername();
+        Account account = accountService.getAccount(username, false);
+        if (account.getImages().size() >= 10) {
+            return "redirect:/profile/" + username + "/1" + "?error=max";
+        }
         ArrayList<String> compatibles = new ArrayList();
         compatibles.add("image/jpeg");
         compatibles.add("image/jpg");
@@ -53,9 +58,6 @@ public class FileObjectController {
             fo.setName(removeFileTypes(file.getOriginalFilename()));
             fo.setMediaType(file.getContentType());
             fo.setSize(file.getSize());
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String username = auth.getName();
-            Account account = accountService.getAccount(username, false);
             fo.setOwner(account);
             fo.setDescription(description);
             fo.setContent(file.getBytes());
@@ -65,6 +67,8 @@ public class FileObjectController {
             }
             account.getImages().add(fo);
             accountService.save(account);
+        }else{
+            return "redirect:/profile/" + username + "/1" + "?error=notCompatible";
         }
         return "redirect:/profile";
     }
@@ -89,6 +93,19 @@ public class FileObjectController {
     @PostMapping("/showImage")
     public String showImage(@RequestParam Long imageId, @RequestParam String username) {
         return "redirect:/profile/" + username + "/image/" + imageId;
+    }
+    
+    @PostMapping("/deleteImage")
+    public String deleteImage(@RequestParam Long imageId, @RequestParam String webPage){
+        FileObject fo = fileService.getFileObject(imageId);
+        Account account = accountService.getAccount(getUsername(), false);
+        account.getImages().remove(fo);
+        if (account.getProfileImage() == fo) {
+            account.setProfileImage(null);
+        }
+        fileService.deleteFileObject(imageId);
+        accountService.save(account);
+        return "redirect:" + webPage;
     }
 
     private String removeFileTypes(String name) {

@@ -42,7 +42,7 @@ public class AccountController {
 
     @Autowired
     private HttpSession session;
-    
+
     @Autowired
     Environment env;
 
@@ -60,7 +60,8 @@ public class AccountController {
     }
 
     @GetMapping("profile/{username}/{pageNumber}")
-    public String profile(Model model, @PathVariable String username, @PathVariable Long pageNumber) {
+    public String profile(Model model, @PathVariable String username, @PathVariable Long pageNumber, @RequestParam Map<String, String> params) {
+        System.out.println("PROFILE:");
         model.addAttribute("sameUser", isSameUser(username));
         model.addAttribute("logged", checkIfLoggedIn());
         Account account = accountService.getAccount(username, false);
@@ -77,7 +78,7 @@ public class AccountController {
         for (FileObject image : images) {
             imageIds.add(image.getId());
         }
-
+        
         List<Long> imageVoteCounts = new ArrayList();
         for (FileObject image : images) {
             boolean voted = false;
@@ -93,6 +94,7 @@ public class AccountController {
             imageVoteCounts.add(count);
         }
         model.addAttribute("imageVoteCounts", imageVoteCounts);
+        System.out.println("IMAGEVOTE");
 
         List<Boolean> votes = new ArrayList();
         List<Long> voteCounts = new ArrayList();
@@ -145,7 +147,7 @@ public class AccountController {
         }
         model.addAttribute("images", account.getImages());
         model.addAttribute("showImage", false);
-        
+
         List<Long> followingIds = new ArrayList();
         followingIds.add(account.getId());
         checkSession(followingIds);
@@ -154,12 +156,22 @@ public class AccountController {
 
         model.addAttribute("pageCount", maxPages);
         model.addAttribute("current", pageNumber);
-        
+
         System.out.println("PROFILE length " + env.getActiveProfiles().length);
         for (int i = 0; i < env.getActiveProfiles().length; i++) {
             System.out.println("PROFILE " + env.getActiveProfiles()[i]);
         }
-        
+        if (params.containsKey("error")) {
+            System.out.println("TÄÄLLÄ OLLAAN");
+            String error = params.get("error");
+            model.addAttribute("error", true);
+            if (error.equals("notCompatible")) {
+                model.addAttribute("errorMessage", "Wrong file type!");
+            } else if (error.equals("max")) {
+                model.addAttribute("errorMessage", "Maximum image count is 10 on profile.");
+            }
+        }
+
         return "profile";
     }
 
@@ -237,7 +249,6 @@ public class AccountController {
         model.addAttribute("followers", followService.findAllFollowers(account));
         model.addAttribute("blocked", blocked);
         model.addAttribute("image", image);
-        System.out.println("MITÄ?");
         model.addAttribute("showImage", true);
         return "profile";
     }
@@ -360,7 +371,6 @@ public class AccountController {
         accountService.save(account);
         return "redirect:/profile/" + username;
     }
-    
 
     @GetMapping("/login")
     public String login(Model model, @RequestParam Map<String, String> params) {
