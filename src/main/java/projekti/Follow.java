@@ -17,6 +17,7 @@ public class Follow extends AbstractPersistable<Long> {
     @ManyToOne
     private Account follower;
     
+    
     @ManyToOne
     private Account following;
     
