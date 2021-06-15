@@ -162,7 +162,6 @@ public class AccountController {
             System.out.println("PROFILE " + env.getActiveProfiles()[i]);
         }
         if (params.containsKey("error")) {
-            System.out.println("TÄÄLLÄ OLLAAN");
             String error = params.get("error");
             model.addAttribute("error", true);
             if (error.equals("notCompatible")) {
@@ -274,6 +273,7 @@ public class AccountController {
             follow.setFollower(follower);
             follow.setFollowing(following);
             follow.setStatus(1);
+            follow.setDate(LocalDate.now());
         } else {
             if (follow.getStatus() == 0 || follow.getStatus() == -1) {
                 follow.setStatus(1);
