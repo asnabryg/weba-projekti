@@ -6,6 +6,8 @@ import javax.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 @Entity
@@ -14,6 +16,7 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @AllArgsConstructor
 public class ImageVote extends AbstractPersistable<Long> {
     
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne()
     private FileObject file;
     
