@@ -2,6 +2,7 @@
 package projekti;
 
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -25,11 +26,13 @@ public class FileObject extends AbstractPersistable<Long>{
     @ManyToOne()
     private Account owner;
     
-    @OneToMany(mappedBy="file")
+    @OneToMany(mappedBy="file", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageVote> imageVotes;
     
-    @OneToMany(mappedBy="file")
+    @OneToMany(mappedBy="file", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageComment> comments;
+    
+    boolean deleted = false;
     
 //    @Lob
 //    @Basic(fetch = FetchType.LAZY)

@@ -16,7 +16,6 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 @AllArgsConstructor
 public class ImageVote extends AbstractPersistable<Long> {
     
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne()
     private FileObject file;
     
