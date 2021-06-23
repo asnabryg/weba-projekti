@@ -27,18 +27,11 @@ public class ProductionSecurityConfiguration extends WebSecurityConfigurerAdapte
     @Override
     public void configure(HttpSecurity http) throws Exception {
 
-        http.csrf().disable();
-        http.headers().frameOptions().sameOrigin();
-//         Pyyntöjä ei tarkasteta
-//        sec.ignoring().antMatchers("/**");
-//        authenticated()
-//        env.setActiveProfiles("production");
         http.formLogin().loginPage("/login").loginProcessingUrl("/perform_login")
                 .defaultSuccessUrl("/loginSuccess").failureUrl("/login?error=true");
         http.authorizeRequests()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/register", "/register/**").permitAll()
-                .antMatchers("/h2-console", "/h2-console/**").permitAll()
                 .antMatchers("/css", "/css/**").permitAll()
                 .antMatchers("/profile", "/profile/**/image/**").authenticated()
                 .antMatchers("/profile", "/profile/**").permitAll()
