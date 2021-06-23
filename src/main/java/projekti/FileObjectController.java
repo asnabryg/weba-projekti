@@ -69,10 +69,8 @@ public class FileObjectController {
             account.getImages().add(fo);
             accountService.save(account);
         }else{
-            System.out.println("error1");
             return "redirect:/profile/" + username + "/1" + "?error=notCompatible";
         }
-        System.out.println("SAVED");
         return "redirect:/profile";
     }
 

@@ -105,7 +105,6 @@ public class HomeController {
         }
         model.addAttribute("username", getUsername());
         model.addAttribute("nickname", account.getNickname());
-        System.out.println(account.getProfileImage().getName());
         model.addAttribute("profileImage", account.getProfileImage());
         model.addAttribute("commentLimits", commentLimits);
         model.addAttribute("votes", votes);
