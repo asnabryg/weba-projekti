@@ -54,6 +54,7 @@ public class FileObjectController {
             compatibles.add("image/gif");
         }
         if (compatibles.contains(file.getContentType())) {
+            System.out.println("Täällä");
             FileObject fo = new FileObject();
             fo.setName(removeFileTypes(file.getOriginalFilename()));
             fo.setMediaType(file.getContentType());
@@ -68,8 +69,10 @@ public class FileObjectController {
             account.getImages().add(fo);
             accountService.save(account);
         }else{
+            System.out.println("error1");
             return "redirect:/profile/" + username + "/1" + "?error=notCompatible";
         }
+        System.out.println("SAVED");
         return "redirect:/profile";
     }
 

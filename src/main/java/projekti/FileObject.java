@@ -34,7 +34,7 @@ public class FileObject extends AbstractPersistable<Long>{
     private List<ImageComment> comments;
     
     @Lob
-    @Basic(fetch = FetchType.LAZY)
+//    @Basic(fetch = FetchType.LAZY)
     private byte[] content;
     
 }
