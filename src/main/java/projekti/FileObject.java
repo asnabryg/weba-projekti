@@ -33,8 +33,8 @@ public class FileObject extends AbstractPersistable<Long>{
     @OneToMany(mappedBy="file")
     private List<ImageComment> comments;
     
+    //    @Basic(fetch = FetchType.LAZY)
     @Lob
-//    @Basic(fetch = FetchType.LAZY)
     private byte[] content;
     
 }
