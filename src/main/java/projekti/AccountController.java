@@ -121,7 +121,6 @@ public class AccountController {
         model.addAttribute("commentLimits", commentLimits);
         model.addAttribute("votes", votes);
         model.addAttribute("voteCounts", voteCounts);
-
         model.addAttribute("imageIds", imageIds);
         model.addAttribute("following", followService.findAllFollowings(account));
         model.addAttribute("followers", followService.findAllFollowers(account));
