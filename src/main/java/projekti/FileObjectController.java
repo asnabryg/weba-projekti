@@ -24,6 +24,12 @@ public class FileObjectController {
 
     @Autowired
     private AccountService accountService;
+    
+    @Autowired
+    private ImageVoteRepository voteRepo;
+    
+    @Autowired
+    private ImageCommentRepository commentRepo;
 
     @ResponseBody
     @GetMapping("/images/{id}/content")
@@ -54,7 +60,6 @@ public class FileObjectController {
             compatibles.add("image/gif");
         }
         if (compatibles.contains(file.getContentType())) {
-            System.out.println("Täällä");
             FileObject fo = new FileObject();
             fo.setName(removeFileTypes(file.getOriginalFilename()));
             fo.setMediaType(file.getContentType());
@@ -99,6 +104,7 @@ public class FileObjectController {
         return "redirect:/profile/" + username + "/image/" + imageId;
     }
     
+    @Transactional
     @PostMapping("/deleteImage")
     public String deleteImage(@RequestParam Long imageId, @RequestParam String webPage){
         FileObject fo = fileService.getFileObject(imageId);
@@ -106,6 +112,12 @@ public class FileObjectController {
         account.getImages().remove(fo);
         if (account.getProfileImage() == fo) {
             account.setProfileImage(null);
+        }
+        for (ImageVote vote : fo.getImageVotes()) {
+            voteRepo.deleteImageVoteWithId(vote.getId());
+        }
+        for (ImageComment comment : fo.getComments()) {
+            commentRepo.deleteImageCommentWithId(comment.getId());
         }
         fileService.deleteFileObject(imageId);
         accountService.save(account);

@@ -27,7 +27,7 @@ public class Account extends AbstractPersistable<Long>{
     @OneToMany(mappedBy="giver")
     private List<Vote> votes;
     
-     @OneToMany(mappedBy="giver")
+    @OneToMany(mappedBy="giver")
     private List<ImageVote> imageVotes;
     
     @OneToMany(mappedBy="sender")
