@@ -83,7 +83,7 @@ public class AccountController {
             boolean voted = false;
             Long count = 0L;
             for (ImageVote vote : image.getImageVotes()) {
-                if (vote.getGiver().getUsername().equals(account.getUsername())) {
+                if (vote.getGiver().getUsername().equals(getUsername())) {
                     voted = vote.isVoted();
                 }
                 if (vote.isVoted()) {
@@ -104,7 +104,7 @@ public class AccountController {
             boolean voted = false;
             Long count = 0L;
             for (Vote vote : message.getVotes()) {
-                if (vote.getGiver().getUsername().equals(account.getUsername())) {
+                if (vote.getGiver().getUsername().equals(getUsername())) {
                     voted = vote.isVoted();
                 }
                 if (vote.isVoted()) {

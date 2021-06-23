@@ -214,7 +214,7 @@
                                         <span th:text="${messages.get(i).text}">message</span><br/>
                                         <span th:text="${messages.get(i).dateInString}">dateTime</span><br/>
                                         <input type="hidden" name="messageId" th:value="${messages.get(i).id}"/>
-                                        <input type="hidden" name="webPage" th:value="@{/home/{current}(current=${current})}"/>
+                                        <input type="hidden" name="webPage" th:value="@{/profile/{username}/{current}(username=${username}, current=${current})}"/>
                                         <div style="width: 30px; height: 30px; display: inline-block;">
                                             <input type="image" th:src="@{/images/heart.png}" alt="heart"
                                                    th:style="${votes.get(i) ? 'filter: grayscale(0%); width: 100%; height: 100%;' : 'filter: grayscale(100%); opacity: 0.5; width: 100%; height: 100%;'}"/>
