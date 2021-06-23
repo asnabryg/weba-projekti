@@ -61,7 +61,6 @@ public class AccountController {
 
     @GetMapping("profile/{username}/{pageNumber}")
     public String profile(Model model, @PathVariable String username, @PathVariable Long pageNumber, @RequestParam Map<String, String> params) {
-        System.out.println("PROFILE:");
         model.addAttribute("sameUser", isSameUser(username));
         model.addAttribute("logged", checkIfLoggedIn());
         Account account = accountService.getAccount(username, false);
@@ -71,14 +70,13 @@ public class AccountController {
         if (account.getProfileImage() != null) {
             profileImage = account.getProfileImage();
         }
-//        System.out.println("image " + profileImage.getName());
         model.addAttribute("profileImage", profileImage);
         List<FileObject> images = account.getImages();
         List<Long> imageIds = new ArrayList();
         for (FileObject image : images) {
             imageIds.add(image.getId());
         }
-        
+
         List<Long> imageVoteCounts = new ArrayList();
         for (FileObject image : images) {
             boolean voted = false;
@@ -94,7 +92,6 @@ public class AccountController {
             imageVoteCounts.add(count);
         }
         model.addAttribute("imageVoteCounts", imageVoteCounts);
-        System.out.println("IMAGEVOTE");
 
         List<Boolean> votes = new ArrayList();
         List<Long> voteCounts = new ArrayList();
@@ -118,7 +115,6 @@ public class AccountController {
                 c = 0L;
             }
             commentLimits.add(c);
-            System.out.println("VoteCount: " + count + ", messageId: " + message.getId());
             votes.add(voted);
             voteCounts.add(count);
         }
@@ -157,10 +153,6 @@ public class AccountController {
         model.addAttribute("pageCount", maxPages);
         model.addAttribute("current", pageNumber);
 
-        System.out.println("PROFILE length " + env.getActiveProfiles().length);
-        for (int i = 0; i < env.getActiveProfiles().length; i++) {
-            System.out.println("PROFILE " + env.getActiveProfiles()[i]);
-        }
         if (params.containsKey("error")) {
             String error = params.get("error");
             model.addAttribute("error", true);
@@ -183,8 +175,6 @@ public class AccountController {
             messageCount = 0L;
         }
         session.setAttribute("maxPagesProfile", calculateMaxPages(messageCount, 25));
-        System.out.println("PageProfile: " + session.getAttribute("pageProfile"));
-        System.out.println("MaxPagesProfile: " + session.getAttribute("maxPagesProfile"));
     }
 
     private long calculateMaxPages(long messageCount, long messagesPerPage) {
@@ -196,7 +186,6 @@ public class AccountController {
         if (!checkIfLoggedIn()) {
             return "redirect:/login";
         }
-        System.out.println("username " + username);
         // 0 = next, -1 = previous
         Long sessionPage = (Long) session.getAttribute("pageProfile");
         if (page.equals("next")) {
@@ -243,7 +232,6 @@ public class AccountController {
         statuses.add(-1);
         statuses.add(-3);
         List<Follow> blocked = followService.findAllByFollowerAndStatus(accountService.getAccount(getUsername(), false), statuses);
-        System.out.println("blocked " + blocked.size());
         model.addAttribute("following", followService.findAllFollowings(account));
         model.addAttribute("followers", followService.findAllFollowers(account));
         model.addAttribute("blocked", blocked);
@@ -364,6 +352,9 @@ public class AccountController {
             session.setAttribute("logged", false);
             return "redirect:/login";
         }
+        if (newNickname == null || newNickname.trim().equals("")) {
+            return "redirect:/profile";
+        }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Account account = accountService.getAccount(username, false);
@@ -388,19 +379,25 @@ public class AccountController {
         return "login";
     }
 
-    @GetMapping("/loginSuccess")
-    public String loginSuccess() {
-        System.out.println("ASD");
+    @GetMapping("*")
+    public String unkonwnPage() {
         if (checkIfLoggedIn()) {
-            System.out.println("123");
             session.setAttribute("logged", true);
         }
         return "redirect:/home";
     }
 
+    @GetMapping("/loginSuccess")
+    public String loginSuccess() {
+        session.setAttribute("logged", true);
+        return "redirect:/home";
+    }
+
     @GetMapping("/register")
     public String register(Model model) {
-        model.addAttribute("accounts", accountService.findAll());
+        if (checkIfLoggedIn()) {
+            return "redirect:/home";
+        }
         if (session.getAttribute("success") == null) {
             session.setAttribute("success", 0);
         }
@@ -416,12 +413,11 @@ public class AccountController {
             session.setAttribute("success", "Username is already used!");
             return "redirect:/register";
         }
-        System.out.println("Nickname: " + nickname);
         if (!password.equals(passwordConfirm)) {
             session.setAttribute("success", "Passwords don't match!");
             return "redirect:/register";
         }
-        if (username.equals("") || nickname.equals("") || password.equals("") || passwordConfirm.equals("")) {
+        if (username.trim().equals("") || nickname.trim().equals("") || password.equals("") || passwordConfirm.equals("")) {
             session.setAttribute("success", "Fill all fields!");
             return "redirect:/register";
         }
@@ -436,8 +432,7 @@ public class AccountController {
 
     @GetMapping("/clear")
     public String clear() {
-        session.invalidate();
-        return "redirect:/register";
+        return "redirect:/logout";
     }
 
     private boolean checkIfLoggedIn() {

@@ -50,7 +50,7 @@ public class FileObjectController {
         compatibles.add("image/jpeg");
         compatibles.add("image/jpg");
         compatibles.add("image/png");
-        if (imageTo != null && !imageTo.equals("profile")) {
+        if (imageTo == null) {
             compatibles.add("image/gif");
         }
         if (compatibles.contains(file.getContentType())) {
@@ -82,6 +82,9 @@ public class FileObjectController {
         Account account = accountService.getAccount(
                 SecurityContextHolder.getContext().getAuthentication().getName(), false);
         FileObject fb = fileService.getFileObject(profileImageId);
+        if (fb.getMediaType().equals("image/gif")) {
+            return "redirect:/profile";
+        }
         account.setProfileImage(fb);
         accountService.save(account);
         if (webPage != null) {

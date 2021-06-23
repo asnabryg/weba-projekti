@@ -23,8 +23,8 @@
 
                     <!--Change Nickname-->
                     <div th:if="${logged && sameUser}">
-                        <form th:action="@{/changeNickname}" method="POST" style="display: inline-block;">
-                            <input class="form-control input-sml" placeholder="Enter new nickname" type="text" name="newNickname" style="display: inline; width: 140px">
+                        <form th:action="@{/changeNickname}" method="POST" style="display: inline-block;" onsubmit="return checkNewNickname(this)">
+                            <input class="form-control input-sml" placeholder="Enter new nickname" type="text" name="newNickname" style="display: inline; width: 140px" id="nickname">
                                 <button type="submit" class="btn btn-sm input-sml" style="width: 50px;background-color: blue; display: inline; color: white;">Submit</button>
                         </form>
                     </div>
@@ -318,12 +318,14 @@
                               style="display: inline-block;">
                             <button class="btn btn-primary" type="submit" style="background-color: red; color: white; border-color: red; display: inline-block;">Back</button>
                         </form>
-                        <div th:if="${sameUser}" style="display: inline-block;">
+                        <div th:if="${sameUser && image.mediaType != 'image/gif'}" style="display: inline-block;">
                             <form th:action="@{/changeProfileImage}" method="POST">
                                 <input type="hidden" name="profileImageId" th:value="${image.id}"/>
                                 <input type="hidden" name="webPage" th:value="@{/profile/{username}/image/{imageId}(username=${username}, imageId=${image.id})}"/>
                                 <button class="btn btn-primary" type="submit" style="display: inline-block;">Set as profile picture</button>
                             </form>
+                        </div>
+                        <div th:if="${sameUser}" style="display: inline-block;">
                             <form th:action="@{/deleteImage}" method="POST">
                                 <input type="hidden" name="imageId" th:value="${image.id}"/>
                                 <input type="hidden" name="webPage" th:value="@{/profile/{username}(username=${username})}"/>
@@ -391,7 +393,6 @@
         function checkAddImageForm(form) {
             var uploadBox = document.getElementById("file");
             if (file.value != "") {
-                console.log(trim(description.value));
                 if (trim(description.value) == "") {
                     alert("Write description!");
                     return false;
@@ -401,6 +402,14 @@
                 alert("Choose the file first!");
                 return false;
             }
+        }
+        function checkNewNickname(form) {
+            var nickname = document.getElementById("nickname");
+            if (trim(nickname.value) == "") {
+                alert("Write new nickname!");
+                return false;
+            }
+            return true;
         }
         function trim(s) {
             return s.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');

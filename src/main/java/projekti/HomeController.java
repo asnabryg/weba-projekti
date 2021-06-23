@@ -45,8 +45,6 @@ public class HomeController {
             messageCount = 0L;
         }
         session.setAttribute("maxPages", calculateMaxPages(messageCount, 25));
-        System.out.println("Page: " + session.getAttribute("page"));
-        System.out.println("MaxPages: " + session.getAttribute("maxPages"));
     }
 
     private long calculateMaxPages(long messageCount, long messagesPerPage) {
@@ -102,10 +100,12 @@ public class HomeController {
                 c = 0L;
             }
             commentLimits.add(c);
-            System.out.println("VoteCount: " + count + ", messageId: " + message.getId());
             votes.add(voted);
             voteCounts.add(count);
         }
+        model.addAttribute("username", getUsername());
+        model.addAttribute("nickname", account.getNickname());
+        model.addAttribute("profileImage", account.getProfileImage());
         model.addAttribute("commentLimits", commentLimits);
         model.addAttribute("votes", votes);
         model.addAttribute("voteCounts", voteCounts);
@@ -155,7 +155,6 @@ public class HomeController {
         if (!checkIfLoggedIn()) {
             return "redirect:/login";
         }
-        System.out.println("MessageId " + messageId);
         Account account = accountService.getAccount(getUsername(), false);
         Message message = messageService.getMessageById(messageId);
         accountService.vote(account, message);
