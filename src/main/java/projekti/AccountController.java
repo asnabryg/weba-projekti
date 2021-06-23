@@ -77,6 +77,7 @@ public class AccountController {
             imageIds.add(image.getId());
         }
 
+        
         List<Long> imageVoteCounts = new ArrayList();
         for (FileObject image : images) {
             boolean voted = false;
