@@ -34,6 +34,7 @@ public class FileObject extends AbstractPersistable<Long>{
     
     boolean deleted = false;
     
+    
 //    @Lob
 //    @Basic(fetch = FetchType.LAZY)
     @Type(type="org.hibernate.type.BinaryType")
